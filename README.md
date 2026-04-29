@@ -1,13 +1,44 @@
-# ⚛ ReactField
+# <img src="./public/favicon.svg" alt="ReactField icon" width="26" height="26" /> ReactField
 
-ReactField is the field guide to production React, with opinionated best practices and practical ecosystem guidance.
+ReactField is a field guide to production React, focused on opinionated best practices, architecture decisions, and practical ecosystem guidance for real-world teams.
 
-## Suggestions
+## Why ReactField?
 
-To start a discussion about a particular idea you'd like to champion (or think we should be covering), please open an issue in our GitHub repository with the label `Question` or join us on Discord and start the conversation there.
+- Learn patterns that scale beyond small demos.
+- Understand trade-offs behind tooling and architecture decisions.
+- Explore practical guidance you can apply directly in production apps.
 
-## Opening Pull Requests
+## Tech Stack
 
-Fork the repo, open your PR's into `develop`. We plan releases on an ad-hoc basis, but generally they happen everytime we make content changes.
+- Next.js
+- React
+- MDX content system
+- Tailwind CSS
 
-In general, we'll look at just about any pull request opened, but we'd really appreciate PR's that tackle [bugs/issues](https://github.com/MhamedEl-shahawy/ReactField/labels/good%20first%20issue).
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the site.
+
+## Available Scripts
+
+- `npm run dev` - Start the local development server.
+- `npm run build` - Build for production.
+- `npm run start` - Run the production build locally.
+- `npm run lint` - Run ESLint checks.
+
+## Contributing
+
+Ideas and improvements are welcome.
+
+- Open an issue with the `Question` label to start a discussion.
+- Pick a task from [good first issues](https://github.com/MhamedEl-shahawy/ReactField/labels/good%20first%20issue).
+- Fork the repository and open pull requests against `develop`.
+
+## Maintainer
+
+Maintained by [Mohamed Elshahawy](https://github.com/MhamedEl-shahawy).
