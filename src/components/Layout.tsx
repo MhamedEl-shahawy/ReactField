@@ -1,6 +1,7 @@
 import { type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import { Document as FlexSearchDocument } from 'flexsearch'
 import SidebarNavigation, { sidebarNavigation, type SidebarAnchor } from '@/components/SidebarNavigation'
 import { Prose } from '@/components/Prose'
@@ -180,6 +181,7 @@ export function Layout({
   const [wordCount, setWordCount] = useState(0)
   const [deepDiveCount, setDeepDiveCount] = useState(0)
   const [showBackToTop, setShowBackToTop] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const computedAnchors = useMemo(() => {
     if (anchors && anchors.length > 0) return anchors
@@ -450,46 +452,67 @@ export function Layout({
     return () => container.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const closeMobileNav = () => setMobileNavOpen(false)
+    router.events.on('routeChangeComplete', closeMobileNav)
+    return () => {
+      router.events.off('routeChangeComplete', closeMobileNav)
+    }
+  }, [router])
+
   return (
     <SectionProvider sections={sections}>
       <div className="flex h-screen overflow-hidden bg-[#faf9f6] text-[#111111]">
-        <div className="h-screen w-[248px] flex-none border-r border-[#dedbd6] bg-white">
+        <div className="hidden h-screen w-[248px] flex-none border-r border-[#dedbd6] bg-white lg:block">
           <SidebarNavigation currentPath={pathname} anchors={computedAnchors} onSearchOpen={() => setSearchOpen(true)} />
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-[52px] items-center justify-between border-b border-[#dedbd6] bg-white px-7">
-            <div className="flex items-center gap-1.5 text-[12px] text-[#7b7b78]">
-              {crumbs.map((crumb, index) => (
-                <span key={`${crumb}-${index}`} className="flex items-center gap-1.5">
-                  {index > 0 ? <span className="text-[#dedbd6]">/</span> : null}
-                  <span className={index === crumbs.length - 1 ? 'font-medium text-[#111111]' : ''}>{crumb}</span>
-                </span>
-              ))}
+          <header className="flex h-[52px] shrink-0 items-center justify-between gap-3 border-b border-[#dedbd6] bg-white px-4 sm:px-7">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(true)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] border border-[#dedbd6] bg-white text-[#111111] transition hover:bg-[#faf9f6] lg:hidden"
+                aria-label="Open navigation menu"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              </button>
+              <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto whitespace-nowrap text-[11px] text-[#7b7b78] sm:text-[12px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {crumbs.map((crumb, index) => (
+                  <span key={`${crumb}-${index}`} className="flex shrink-0 items-center gap-1.5">
+                    {index > 0 ? <span className="text-[#dedbd6]">/</span> : null}
+                    <span className={index === crumbs.length - 1 ? 'font-medium text-[#111111]' : ''}>{crumb}</span>
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <Link
                 href="/about"
-                className="h-8 rounded-[4px] border border-[#dedbd6] bg-white px-3.5 text-[13px] leading-8 text-[#111111] transition hover:bg-[#faf9f6]"
+                className="h-8 rounded-[4px] border border-[#dedbd6] bg-white px-2.5 text-[13px] leading-8 text-[#111111] transition hover:bg-[#faf9f6] sm:px-3.5"
               >
-                About ReactField
+                <span className="sm:hidden">About</span>
+                <span className="hidden sm:inline">About ReactField</span>
               </Link>
               <button
                 type="button"
                 onClick={handleShare}
-                className="h-8 rounded-[4px] bg-[#111111] px-3.5 text-[13px] text-white transition hover:bg-[#313130]"
+                className="h-8 rounded-[4px] bg-[#111111] px-2.5 text-[13px] text-white transition hover:bg-[#313130] sm:px-3.5"
               >
                 Share
               </button>
             </div>
           </header>
 
-          <main ref={contentRef} className="flex-1 overflow-y-auto bg-[#faf9f6] px-10 py-8 [scroll-behavior:smooth]">
+          <main ref={contentRef} className="flex-1 overflow-y-auto bg-[#faf9f6] px-4 py-6 [scroll-behavior:smooth] sm:px-6 sm:py-8 lg:px-10">
             <div className="mx-auto flex w-full max-w-[1240px] gap-8">
               <div className="min-w-0 flex-1">
                 <div className="mb-5">
-                  <div className="mb-3 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[#7b7b78]">
+                  <div className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[#7b7b78]">
                     <span>Getting Started</span>
                     <span className="text-[#dedbd6]">·</span>
                     <span>{readingMinutes} min read</span>
@@ -504,7 +527,9 @@ export function Layout({
                       </>
                     ) : null}
                   </div>
-                  <h1 className="mb-3 text-[36px] font-normal leading-[1] tracking-[-1.2px] text-[#111111]">{title}</h1>
+                  <h1 className="mb-3 text-[28px] font-normal leading-[1.05] tracking-[-1px] text-[#111111] sm:text-[32px] sm:tracking-[-1.1px] lg:text-[36px] lg:tracking-[-1.2px]">
+                    {title}
+                  </h1>
                   <p className="max-w-[72ch] text-[15px] leading-[1.8] tracking-[-0.01em] text-[#626260]">{description}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className="rounded-[3px] border border-[#dedbd6] bg-white px-2 py-1 text-[11px] text-[#626260]">
@@ -540,18 +565,20 @@ export function Layout({
                     >
                       Collapse all
                     </button>
-                    <span className="text-[11px] text-[#7b7b78]">Shortcut: Alt+Shift+E / Alt+Shift+C</span>
+                    <span className="hidden text-[11px] text-[#7b7b78] sm:inline">
+                      Shortcut: Alt+Shift+E / Alt+Shift+C
+                    </span>
                   </div>
                 ) : null}
 
-                <section className="mb-[14px] rounded-[8px] border border-[#dedbd6] bg-white px-6 py-5">
+                <section className="mb-[14px] rounded-[8px] border border-[#dedbd6] bg-white px-4 py-4 sm:px-6 sm:py-5">
                   <div className="flex items-center justify-between">
                     <h3 className="text-[15px] font-medium text-[#111111]">Main content</h3>
                     <span className="rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] text-[#ff5600]">
                       Active
                     </span>
                   </div>
-                  <article ref={articleRef}>
+                  <article ref={articleRef} className="min-w-0 overflow-x-auto">
                     <Prose
                       as="div"
                       className="mt-5 max-w-[72ch] prose-zinc leading-[1.8] prose-headings:font-normal prose-headings:tracking-[-0.02em]"
@@ -591,20 +618,55 @@ export function Layout({
         <button
           type="button"
           onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-8 z-[120] rounded-[4px] border border-[#dedbd6] bg-white px-3 py-2 text-[12px] font-medium text-[#111111] shadow-sm transition hover:bg-[#faf9f6]"
+          className="fixed bottom-4 right-4 z-[120] rounded-[4px] border border-[#dedbd6] bg-white px-3 py-2 text-[12px] font-medium text-[#111111] shadow-sm transition hover:bg-[#faf9f6] sm:bottom-6 sm:right-8"
         >
           Back to top
         </button>
       ) : null}
+
+      <Dialog open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} className="relative z-[150] lg:hidden">
+        <DialogBackdrop
+          transition
+          className="fixed inset-0 bg-[#111111]/30 transition-opacity duration-200 ease-out data-[closed]:opacity-0"
+        />
+        <DialogPanel
+          transition
+          className="fixed inset-y-0 left-0 flex h-full w-full max-w-[min(280px,92vw)] flex-col border-r border-[#dedbd6] bg-white shadow-xl transition duration-200 ease-out data-[closed]:-translate-x-full data-[closed]:opacity-0"
+        >
+          <div className="flex shrink-0 items-center justify-end border-b border-[#dedbd6] bg-white px-3 py-2">
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(false)}
+              className="flex h-9 w-9 items-center justify-center rounded-[4px] text-[#626260] transition hover:bg-[#faf9f6] hover:text-[#111111]"
+              aria-label="Close navigation menu"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <SidebarNavigation
+              currentPath={pathname}
+              anchors={computedAnchors}
+              onSearchOpen={() => {
+                setMobileNavOpen(false)
+                setSearchOpen(true)
+              }}
+            />
+          </div>
+        </DialogPanel>
+      </Dialog>
+
       {searchOpen ? (
-        <div className="fixed inset-0 z-[200] flex items-start justify-center bg-[#111111]/30 p-6 pt-20">
+        <div className="fixed inset-0 z-[200] flex items-start justify-center bg-[#111111]/30 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:p-6 sm:pt-20">
           <button
             type="button"
             aria-label="Close search"
             className="absolute inset-0"
             onClick={() => setSearchOpen(false)}
           />
-          <div className="relative w-full max-w-2xl rounded-[8px] border border-[#dedbd6] bg-white">
+          <div className="relative w-full max-w-2xl rounded-[8px] border border-[#dedbd6] bg-white shadow-lg">
             <div className="border-b border-[#dedbd6] p-3">
               <input
                 ref={searchInputRef}
@@ -615,7 +677,7 @@ export function Layout({
                 className="w-full rounded-[4px] border border-[#dedbd6] bg-[#faf9f6] px-3 py-2 text-[14px] text-[#111111] placeholder:text-[#7b7b78] focus:outline-none"
               />
             </div>
-            <div className="max-h-[360px] overflow-y-auto p-2">
+            <div className="max-h-[min(360px,calc(100vh-8rem))] overflow-y-auto p-2 sm:max-h-[360px]">
               {!searchTerm.trim() ? (
                 <div className="space-y-3">
                   {recentSearches.length > 0 ? (
