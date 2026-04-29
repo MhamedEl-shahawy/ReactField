@@ -1,0 +1,196 @@
+export const description =
+  "Hands-on JavaScript performance patterns for React apps, including loop optimization, memoization, and render-time cost reduction."
+
+# JavaScript Performance Patterns in React
+
+This page covers practical JavaScript-level optimizations inside React components, based on patterns shown in Vercel's <Resource url='https://vercel.com/blog/introducing-react-best-practices'>Introducing: React Best Practices</Resource> and `react-best-practices` examples. The goal is not micro-optimizing everything - it is eliminating repeated work that compounds under real user interaction.
+
+## Combining Loop Iterations
+
+A real pattern from Vercel examples: chat UIs repeatedly scanning the same `messages` list for different metrics, badges, and derived groups.
+
+<CodeComparison
+  wide
+  language="tsx"
+  beforeTitle="Incorrect (8 passes over messages)"
+  afterTitle="Correct (single pass)"
+  beforeCode={`function getChatStats(messages: Message[]) {
+  const unread = messages.filter((m) => !m.read)
+  const pinned = messages.filter((m) => m.pinned)
+  const sentByMe = messages.filter((m) => m.sender === 'me')
+  const withAttachments = messages.filter((m) => m.attachments.length > 0)
+  const urgent = messages.filter((m) => m.priority === 'urgent')
+  const latest = messages.map((m) => m.timestamp).reduce((a, b) => Math.max(a, b), 0)
+  const totalLength = messages.map((m) => m.text.length).reduce((a, b) => a + b, 0)
+  const byChannel = messages.reduce((acc, m) => {
+    acc[m.channel] = (acc[m.channel] ?? 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  return {
+    unreadCount: unread.length,
+    pinnedCount: pinned.length,
+    sentByMeCount: sentByMe.length,
+    attachmentCount: withAttachments.length,
+    urgentCount: urgent.length,
+    latest,
+    totalLength,
+    byChannel,
+  }
+}`}
+  afterCode={`function getChatStats(messages: Message[]) {
+  const stats = {
+    unreadCount: 0,
+    pinnedCount: 0,
+    sentByMeCount: 0,
+    attachmentCount: 0,
+    urgentCount: 0,
+    latest: 0,
+    totalLength: 0,
+    byChannel: {} as Record<string, number>,
+  }
+
+  for (const message of messages) {
+    if (!message.read) stats.unreadCount += 1
+    if (message.pinned) stats.pinnedCount += 1
+    if (message.sender === 'me') stats.sentByMeCount += 1
+    if (message.attachments.length > 0) stats.attachmentCount += 1
+    if (message.priority === 'urgent') stats.urgentCount += 1
+
+    stats.latest = Math.max(stats.latest, message.timestamp)
+    stats.totalLength += message.text.length
+    stats.byChannel[message.channel] = (stats.byChannel[message.channel] ?? 0) + 1
+  }
+
+  // 8 passes -> 1 pass over the same array
+  return stats
+}`}
+/>
+
+When the list is large (or updated frequently), this removes repeated iteration cost and GC pressure from intermediate arrays.
+
+## Lazy State Initialization
+
+Vercel's real-world example pattern: parsing local storage config on every render.
+
+<CodeComparison
+  wide
+  language="tsx"
+  beforeTitle="Incorrect"
+  afterTitle="Correct"
+  beforeCode={`function Preferences() {
+  const [config, setConfig] = useState(
+    JSON.parse(localStorage.getItem('user-config'))
+  )
+
+  return <ConfigView config={config} />
+}`}
+  afterCode={`function Preferences() {
+  const [config, setConfig] = useState(() =>
+    JSON.parse(localStorage.getItem('user-config') ?? '{}')
+  )
+
+  return <ConfigView config={config} />
+}`}
+/>
+
+The non-lazy version runs `JSON.parse(...)` on every re-render, but React ignores that value after the first render. That is wasted CPU.
+
+## Memoizing Stable Selectors
+
+Inline sorting/filtering creates fresh arrays every render, even if inputs did not change.
+
+<CodeComparison
+  wide
+  language="tsx"
+  beforeTitle="Incorrect (derived inline every render)"
+  afterTitle="Correct (memoized selector)"
+  beforeCode={`function Dashboard({ items, query }: Props) {
+  const visibleItems = items
+    .filter((item) => item.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => a.score - b.score)
+
+  return <List items={visibleItems} />
+}`}
+  afterCode={`function Dashboard({ items, query }: Props) {
+  const visibleItems = useMemo(() => {
+    return items
+      .filter((item) => item.name.toLowerCase().includes(query.toLowerCase()))
+      .sort((a, b) => a.score - b.score)
+  }, [items, query])
+
+  return <List items={visibleItems} />
+}`}
+/>
+
+Use React DevTools Profiler with **"Why did this render?"** enabled to confirm the selector output was triggering re-renders.
+
+## Avoiding Object Creation in Render
+
+Common render-time allocation traps:
+
+<CodeComparison
+  wide
+  language="tsx"
+  beforeTitle="Incorrect (new values each render)"
+  afterTitle="Correct (stable references)"
+  beforeCode={`function Profile({ id }: { id: string }) {
+  const query = useQuery({
+    queryKey: ['user', id],
+    queryFn: () => fetchUser(id),
+  })
+
+  const isValid = new RegExp('^[a-z0-9-]+$', 'i').test(id)
+  const now = new Date()
+
+  return (
+    <section style={{ margin: 0 }}>
+      <p>{isValid ? 'valid' : 'invalid'}</p>
+      <small>{now.toISOString()}</small>
+    </section>
+  )
+}`}
+  afterCode={`const sectionStyle = { margin: 0 }
+const USER_ID_REGEX = /^[a-z0-9-]+$/i
+
+function Profile({ id }: { id: string }) {
+  const queryKey = useMemo(() => ['user', id] as const, [id])
+  const queryFn = useCallback(() => fetchUser(id), [id])
+
+  const query = useQuery({
+    queryKey,
+    queryFn,
+  })
+
+  const isValid = USER_ID_REGEX.test(id)
+  const nowIso = useMemo(() => new Date().toISOString(), [])
+
+  return (
+    <section style={sectionStyle}>
+      <p>{isValid ? 'valid' : 'invalid'}</p>
+      <small>{nowIso}</small>
+    </section>
+  )
+}`}
+/>
+
+Fix guide:
+- Inline style props -> hoist constant objects to module scope when static
+- Hook config objects -> memoize values/functions used as options
+- `new Date()` / `new RegExp()` in render -> precompute or memoize intentionally
+
+## How to Profile Before Optimizing
+
+Use React DevTools Profiler first, then optimize only measured hotspots.
+
+```tsx
+// Recommended profiling routine:
+// 1) Open React DevTools -> Profiler tab
+// 2) Record while performing a realistic interaction
+// 3) Sort by "Self time" and "Render duration"
+// 4) Check "Why did this render?" for noisy components
+// 5) Apply a targeted optimization
+// 6) Re-profile and confirm the change helped
+```
+
+If performance did not improve measurably, revert the change and keep the simpler code.

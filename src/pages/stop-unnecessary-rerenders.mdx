@@ -1,0 +1,179 @@
+export const description =
+  'A practical guide to reducing costly React re-renders in component-heavy interfaces.'
+
+# Stop Unnecessary Re-renders in React
+
+React re-renders a component when **state**, **props**, or **context** changes. That behavior is fundamental to how React keeps UI consistent with data.
+
+Most re-renders are totally fine. The re-renders that hurt are the ones that repeatedly run expensive work, or force large subtrees to repaint when nothing meaningful changed for that part of the UI.
+
+<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] font-medium text-[#ff5600]">
+  Impact: smoother interactions and lower CPU usage in complex UIs
+</div>
+
+## Rule 1 — Lazy state initialization
+
+If initial state setup is expensive, initialize lazily.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect"
+  afterTitle="Correct"
+  beforeCode={`function SettingsPanel() {
+  const [config, setConfig] = useState(
+    JSON.parse(localStorage.getItem('config') || '{}')
+  )
+
+  return <pre>{JSON.stringify(config, null, 2)}</pre>
+}`}
+  afterCode={`function SettingsPanel() {
+  const [config, setConfig] = useState(() =>
+    JSON.parse(localStorage.getItem('config') || '{}')
+  )
+
+  return <pre>{JSON.stringify(config, null, 2)}</pre>
+}`}
+/>
+
+With lazy initialization, React calls the initializer callback only for the initial state setup, not during subsequent renders.
+
+### DevTools Profiler screenshot description
+
+- Before: render flamegraph shows repeated self-time in `JSON.parse`.
+- After: parse cost appears only in the initial commit.
+
+## Rule 2 — Stabilize callback references
+
+A memoized child still re-renders if it receives a new function reference every render.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (inline callback prop)"
+  afterTitle="Correct (useCallback)"
+  beforeCode={`const Child = React.memo(function Child({ onSave }: { onSave: () => void }) {
+  return <button onClick={onSave}>Save</button>
+})
+
+function Parent({ id }: { id: string }) {
+  return <Child onSave={() => saveDocument(id)} />
+}`}
+  afterCode={`const Child = React.memo(function Child({ onSave }: { onSave: () => void }) {
+  return <button onClick={onSave}>Save</button>
+})
+
+function Parent({ id }: { id: string }) {
+  const onSave = useCallback(() => {
+    saveDocument(id)
+  }, [id])
+
+  return <Child onSave={onSave} />
+}`}
+/>
+
+`React.memo` only helps when props are stable references.
+
+### DevTools Profiler screenshot description
+
+- Before: child commits on every parent render.
+- After: child commits only when `id` changes.
+
+## Rule 3 — Memoize expensive derivations
+
+If you repeatedly sort/filter big collections, compute once per dependency change.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (recomputes every render)"
+  afterTitle="Correct (useMemo)"
+  beforeCode={`function ProductList({
+  products,
+  query,
+}: {
+  products: Product[]
+  query: string
+}) {
+  const visible = products
+    .filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => a.price - b.price)
+
+  return <List items={visible} />
+}`}
+  afterCode={`function ProductList({
+  products,
+  query,
+}: {
+  products: Product[]
+  query: string
+}) {
+  const visible = useMemo(() => {
+    return products
+      .filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+      .sort((a, b) => a.price - b.price)
+  }, [products, query])
+
+  return <List items={visible} />
+}`}
+/>
+
+Rule of thumb: memoize only if a computation costs more than ~1ms **and profiling confirms it**.
+
+## Rule 4 — Stable object/array literals in props
+
+Object and array literals create new references on every render.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (new object each render)"
+  afterTitle="Correct (stable reference)"
+  beforeCode={`function Parent() {
+  return <Widget style={{ color: 'red' }} />
+}`}
+  afterCode={`const widgetStyle = { color: 'red' }
+
+function Parent() {
+  return <Widget style={widgetStyle} />
+}
+
+// or inside component:
+// const style = useMemo(() => ({ color: 'red' }), [])`}
+/>
+
+Stable references reduce avoidable memoized-child updates.
+
+## Rule 5 — Split context to avoid blast radius
+
+A giant context causes broad re-renders because any value change updates all consumers.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (single mega context)"
+  afterTitle="Correct (split contexts)"
+  beforeCode={`type AppContextValue = {
+  auth: AuthState
+  theme: Theme
+  userPrefs: UserPrefs
+}
+
+const AppContext = createContext<AppContextValue | null>(null)`}
+  afterCode={`const AuthContext = createContext<AuthState | null>(null)
+const ThemeContext = createContext<Theme>('light')
+const UserPrefsContext = createContext<UserPrefs | null>(null)
+
+// Components subscribe only to the context they need.`}
+/>
+
+This limits re-render blast radius: auth changes should not repaint theme-only consumers.
+
+## React Compiler note (React 19)
+
+If you are on React 19 with the React Compiler enabled, rules **3** and **4** are often automated by compile-time memoization.  
+Rules **1**, **2**, and **5** still apply and remain important architectural practices.
+
+## When NOT to optimize
+
+Do not optimize by default "just in case." Start with the React DevTools Profiler and production-like scenarios, then optimize the top offenders. Premature optimization adds complexity, increases bug risk, and can make code harder for teams to maintain.
+
+Prefer this order:
+- Measure first
+- Optimize targeted bottlenecks
+- Re-measure to confirm impact

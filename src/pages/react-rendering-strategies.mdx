@@ -1,0 +1,249 @@
+export const description =
+  'Understand React rendering strategies (CSR, SSR, SSG, and Server Components) and choose the right approach for each route.'
+
+# React Rendering Strategies
+
+_Explore React rendering from the server-rendered and jQuery era to SPAs, SSR, SSG, and RSC, with real-world examples and diagrams that help you choose the right approach for your app._
+
+## Section 1 — The Evolution of React Rendering
+
+React rendering patterns did not appear all at once. They evolved as teams hit real production problems:
+
+- Server-rendered pages gave simplicity and SEO, but full-page reloads and limited interactivity.
+- jQuery improved interactions, but scaling app-level state became hard.
+- Early SPA frameworks proved browser-driven apps were viable.
+- React (2013) won by introducing a clearer state-driven rendering model and predictable UI updates.
+
+The key lesson is not "one strategy wins forever." Each pattern exists because it solves a specific constraint (SEO, TTI, interactivity, infrastructure cost, or DX).
+
+<div className="not-prose my-6 overflow-hidden rounded-[12px] border border-[#2a2a2a] bg-[#090909] p-5 text-white">
+  <p className="mb-5 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-zinc-400">
+    Evolution of React Rendering
+  </p>
+  <div className="mx-auto flex max-w-[520px] flex-col gap-2">
+    <div className="rf-timeline-node rf-delay-1 rounded-[10px] border border-[#3a2f65] bg-[#191624] p-4">
+      <p className="text-xs text-zinc-400">2024</p>
+      <p className="mt-1 text-[26px] font-medium leading-[1.1] text-violet-400">
+        Server Components
+      </p>
+      <p className="mt-2 text-sm text-zinc-300">Hybrid streaming</p>
+    </div>
+    <div className="rf-timeline-connector mx-auto h-6 w-px bg-zinc-700" />
+    <div className="rf-timeline-node rf-delay-2 rounded-[10px] border border-[#21413e] bg-[#131a19] p-4">
+      <p className="text-xs text-zinc-400">2020</p>
+      <p className="mt-1 text-[26px] font-medium leading-[1.1] text-zinc-100">
+        Gatsby SSG
+      </p>
+      <p className="mt-2 text-sm text-zinc-300">Static generation</p>
+    </div>
+    <div className="rf-timeline-connector mx-auto h-6 w-px bg-zinc-700" />
+    <div className="rf-timeline-node rf-delay-3 rounded-[10px] border border-[#4a3a18] bg-[#181511] p-4">
+      <p className="text-xs text-zinc-400">2016</p>
+      <p className="mt-1 text-[26px] font-medium leading-[1.1] text-zinc-100">
+        Next.js SSR
+      </p>
+      <p className="mt-2 text-sm text-zinc-300">Server-side rendering</p>
+    </div>
+    <div className="rf-timeline-connector mx-auto h-6 w-px bg-zinc-700" />
+    <div className="rf-timeline-node rf-delay-4 rounded-[10px] border border-[#1f2e4f] bg-[#111620] p-4">
+      <p className="text-xs text-zinc-400">2013</p>
+      <p className="mt-1 text-[26px] font-medium leading-[1.1] text-zinc-100">
+        React SPA
+      </p>
+      <p className="mt-2 text-sm text-zinc-300">Client-side rendering</p>
+    </div>
+    <div className="rf-timeline-connector mx-auto h-6 w-px bg-zinc-700" />
+    <div className="rf-timeline-node rf-delay-5 rounded-[10px] border border-[#2b2b2b] bg-[#141414] p-4">
+      <p className="text-xs text-zinc-400">2005</p>
+      <p className="mt-1 text-[26px] font-medium leading-[1.1] text-zinc-100">
+        jQuery
+      </p>
+      <p className="mt-2 text-sm text-zinc-300">DOM manipulation</p>
+    </div>
+  </div>
+</div>
+
+### Why this matters in ReactField
+
+When you choose rendering strategy first (instead of trend-first), architectural decisions become easier:
+
+- Authenticated dashboard with long sessions -> SPA can be excellent.
+- Content-heavy public pages with SEO constraints -> SSR/SSG often better.
+- Mixed app/site products -> hybrid approach is usually the practical answer.
+
+## Section 2 — Client-Side Rendering (SPA)
+
+In a traditional SPA, the server usually returns an HTML shell and JavaScript bundle. The browser then executes the app and React renders the UI client-side.
+
+```tsx
+// main.tsx: React takes ownership of rendering
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import { App } from './App'
+
+const root = createRoot(document.getElementById('root')!)
+root.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+)
+```
+
+### SPA loading sequence (mental model)
+
+1. Browser requests HTML shell
+2. Browser downloads JS bundle
+3. Browser parses and executes JS
+4. React mounts and renders initial UI
+5. Client-side data fetching starts
+6. UI updates with fetched data
+
+This sequence explains common SPA bottlenecks:
+
+- **Bundle size** delays first contentful render
+- **Fetch-on-render** can create data waterfalls
+- **All-JS dependency** can fail hard if script loading fails
+
+### Example: classic fetch-after-mount pattern
+
+```tsx
+function Dashboard() {
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/dashboard-stats')
+      .then((res) => res.json())
+      .then((data) => {
+        setStats(data)
+        setLoading(false)
+      })
+  }, [])
+
+  if (loading) return <DashboardSkeleton />
+  return <DashboardGrid stats={stats} />
+}
+```
+
+This works, but remember: the request starts only after bundle download, parse/execute, and component mount.
+
+## Section 3 — Server-Side Rendering (SSR)
+
+SSR renders HTML on the server for each request, then sends ready-to-display markup to the browser.
+
+### When SSR helps
+
+- Public pages where SEO and link previews matter.
+- Content that must appear quickly on first load.
+- Routes where server-side auth checks are required before page content.
+
+### Trade-offs
+
+- More server work per request.
+- Caching strategy is critical to control infra cost.
+- You still ship client JS for interactivity, so SSR is not "no JavaScript."
+
+```tsx
+// app/blog/[slug]/page.tsx (Next.js App Router)
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { slug: string }
+}) {
+  const post = await getPostBySlug(params.slug)
+
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <p>{post.body}</p>
+    </article>
+  )
+}
+```
+
+## Section 4 — Static Site Generation (SSG)
+
+SSG pre-renders pages at build time and serves them from CDN edge nodes.
+
+### When SSG helps
+
+- Docs, marketing pages, blogs, changelogs.
+- Content that does not need per-request personalization.
+- Teams that want the best cacheability and very low TTFB.
+
+### Trade-offs
+
+- Content freshness depends on rebuild/revalidation strategy.
+- Very large sites can have longer build times.
+
+```tsx
+// pages/docs/[slug].tsx (Pages Router style)
+export async function getStaticProps({ params }: { params: { slug: string } }) {
+  const doc = await getDoc(params.slug)
+  return { props: { doc }, revalidate: 60 }
+}
+```
+
+## Section 5 — React Server Components (RSC)
+
+RSC lets some components run only on the server, reducing client bundle size and avoiding unnecessary hydration work.
+
+### Why teams adopt RSC
+
+- Less JavaScript sent to the browser.
+- Direct server-side data access for server components.
+- Better default path for mixing static, dynamic, and interactive islands.
+
+### Practical boundary pattern
+
+```tsx
+// Server component
+import ClientChart from './ClientChart'
+
+export default async function AnalyticsPanel() {
+  const summary = await getAnalyticsSummary()
+  return (
+    <section>
+      <h2>Analytics</h2>
+      <p>Total users: {summary.totalUsers}</p>
+      <ClientChart data={summary.chartData} />
+    </section>
+  )
+}
+```
+
+```tsx
+// Client component
+'use client'
+
+export default function ClientChart({ data }: { data: number[] }) {
+  return <ChartLibrary data={data} />
+}
+```
+
+## Section 6 — Patterns in the Real World
+
+Most production apps are hybrid, not pure CSR/SSR/SSG.
+
+| Route Type                | Typical Strategy              | Why                                   |
+| ------------------------- | ----------------------------- | ------------------------------------- |
+| Marketing landing         | SSG + occasional revalidation | fast global delivery, strong SEO      |
+| Blog/article pages        | SSG or SSR                    | crawlable content, share previews     |
+| Logged-in dashboard shell | CSR or RSC-hybrid             | rich interactions after login         |
+| Account/settings          | SSR or RSC-hybrid             | auth checks + dynamic server data     |
+| Admin data grids          | CSR with route-level loaders  | responsiveness for heavy interactions |
+
+A useful default: **SSG for public static content, SSR/RSC for dynamic server data, CSR islands for rich interactivity**.
+
+## Practical Takeaways
+
+- SPAs shine for highly interactive, authenticated, long-session applications.
+- Initial-load performance depends heavily on code splitting and data-loading strategy.
+- Use profiler and network waterfall analysis before selecting optimization tactics.
+- Modern React apps usually combine strategies route-by-route.
+- Pick rendering based on user needs and constraints, not trend cycles.
+
+## Source
+
+- [Rendering Strategies](https://reactrouter.com/start/framework/rendering)
+- [React Rendering Strategies](https://gist.github.com/carefree-ladka/2fc671900b38a87f28caa5ec4956966f)

@@ -1,0 +1,95 @@
+export const description = 'Modern React styling guide: Tailwind, CSS-in-JS, headless UI libraries, design tokens, and scalable theming patterns.'
+
+# Styling & UI Libraries
+
+<Note>
+  Helpful tip: before using any libraries below, you should check your IDE for
+  plugins that might improve the developer experience of using it. For example,
+  if you use Tailwind, the <Resource url='https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss'>Tailwind
+  IntelliSense</Resource>
+  plugin (which recommends classnames in the auto-complete dropdown) and
+  <Resource url='https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode'>Prettier</Resource> coupled with the
+  <Resource url='https://github.com/tailwindlabs/prettier-plugin-tailwindcss'>Tailwind Prettier Plugin</Resource>
+  (enforces consistent ordering of classnames in your markup) in Visual
+  Studio Code might be useful for your team.
+</Note>
+
+## Utility Approach
+
+- <Resource url='https://www.npmjs.com/package/tailwindcss'>Tailwind CSS</Resource> - most popular utility-first choice, huge ecosystem.
+- <Resource url='https://www.npmjs.com/package/unocss'>UnoCSS</Resource> - highly customizable atomic engine with strong DX.
+- <Resource url='https://www.npmjs.com/package/@pandacss/dev'>Panda CSS</Resource> - design-token-first approach with typed recipes.
+
+<Details icon='resources' label='More Tailwind Tips & Resources'>
+  - Use the <Resource url='https://marketplace.visualstudio.com/items?itemName=moalamri.inline-fold'>inline fold</Resource> vscode plugin to collapse long className strings when you're not focused on them with the cursor - Inspired by <Resource url='https://twitter.com/housecor/status/1615790145751367712?s=20'>Cory House</Resource>
+  - The <Resource url='https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss'>Tailwind IntelliSense</Resource> vscode plugin gives you auto-complete
+  - If you purchase <Resource url='https://tailwindui.com/'>tailwindui</Resource> you'll get access to tons of pre-made components + templates
+  - <Resource url='https://ui.shadcn.com/'>shadcn/ui</Resource> - Open Source UI Components
+  - <Resource url='https://preline.co/'>Preline</Resource> - Open Source UI Components
+  - <Resource url='https://github.com/aniftyco/awesome-tailwindcss'>awesome-tailwindcss</Resource> repository on github.com is full of awesome stuff
+  
+</Details>
+
+## CSS / CSS-in-JS
+
+- <Resource url='https://github.com/css-modules/css-modules/blob/master/docs/css-modules-with-react.md'>CSS Modules</Resource> - still one of the cleanest defaults for component-scoped CSS.
+- <Resource url='https://www.npmjs.com/package/@vanilla-extract/css'>vanilla-extract</Resource> - static extraction + type-safe tokens.
+- <Resource url='https://www.npmjs.com/package/@emotion/css'>Emotion</Resource> - flexible CSS-in-JS when you need runtime styling.
+- <Resource url='https://www.npmjs.com/package/styled-components'>styled-components</Resource> - mature API and large ecosystem.
+
+## Modern Styling Tips (2026)
+
+- Prefer **design tokens** (colors/spacing/radius/typography) in one source of truth.
+- Avoid ad-hoc colors in components; map UI to semantic tokens (`surface`, `text-muted`, `danger`).
+- Use CSS variables for theme switching (light/dark/brand) instead of duplicating style objects.
+- Use container queries and modern CSS (`@container`, `:has`) where it reduces JS-driven layout logic.
+- Keep animation lightweight; default to transform/opacity transitions for better performance.
+- Validate contrast and focus states early; accessibility fixes become expensive late in development.
+
+## Component Libraries
+
+Most UI libraries will come with a "theme" or global way to configure certain things like colors, fonts, etc. — but in general, the components render with opinionated styles already applied.
+
+If your app is small enough, it may be simpler to reach for a headless solution (more below) and create the critical components in your app than try to overwrite or customize an entire library.
+
+- <Resource url='https://www.npmjs.com/package/@mui/material'>Material UI</Resource>
+- <Resource url='https://www.npmjs.com/package/@chakra-ui/react'>Chakra UI</Resource>
+- <Resource url='https://www.npmjs.com/package/@nextui-org/react'>NextUI (HeroUI)</Resource>
+- <Resource url='https://www.npmjs.com/package/antd'>Ant Design</Resource>
+- <Resource url='https://www.npmjs.com/package/@fluentui/react-components'>Fluent UI</Resource>
+- <Resource url='https://www.npmjs.com/package/@carbon/react'>Carbon Design System</Resource>
+- <Resource url='https://www.npmjs.com/package/@mantine/core'>Mantine</Resource>
+
+<Note>
+  If you need a lot of customization or control over the presentation of the UI,
+  you should consider a headless solution.
+</Note>
+
+## Headless Component Libraries
+
+- <Resource url='https://www.npmjs.com/package/@radix-ui/primitive'>Radix UI</Resource> / <Resource url='https://www.radix-ui.com/'>Radix Themes</Resource>
+- <Resource url='https://www.npmjs.com/package/@headlessui/react'>Headless UI</Resource>
+- <Resource url='https://www.npmjs.com/package/@mui/base'>Base UI</Resource>
+- <Resource url='https://www.npmjs.com/package/react-aria'>React Aria</Resource>
+- <Resource url='https://www.npmjs.com/package/@ariakit/react'>Ariakit</Resource>
+
+## Recommended Combinations
+
+- <Resource url='https://www.npmjs.com/package/@radix-ui/primitive'>Radix UI</Resource> + <Resource url='https://www.npmjs.com/package/tailwindcss'>tailwind</Resource>
+- <Resource url='https://www.npmjs.com/package/@headlessui/react'>Headless UI</Resource> + <Resource url='https://www.npmjs.com/package/tailwindcss'>tailwind</Resource>
+- <Resource url='https://www.npmjs.com/package/@chakra-ui/react'>Chakra UI</Resource> + <Resource url='https://www.npmjs.com/package/@emotion/css'>emotion</Resource>
+- <Resource url='https://www.npmjs.com/package/@mui/base'>Base UI</Resource> + <Resource url='https://vitejs.dev/guide/features.html#css-modules'>CSS Modules</Resource> / <Resource url='https://www.npmjs.com/package/styled-components'>styled-components</Resource>
+- <Resource url='https://ui.shadcn.com/docs'>shadcn/ui</Resource> + <Resource url='https://www.npmjs.com/package/tailwindcss'>tailwind</Resource> + <Resource url='https://www.npmjs.com/package/@radix-ui/react-slot'>Radix primitives</Resource>
+
+## Universal / Mobile Component Libraries
+- <Resource url='https://www.npmjs.com/package/react-native-paper'>React Native Paper</Resource>
+- <Resource url='https://tamagui.dev/docs/intro/introduction'>tamagui</Resource>
+- <Resource url='https://www.npmjs.com/package/@rneui/base'>React Native Elements</Resource>
+- <Resource url='https://ionicframework.com/docs/'>Ionic</Resource>
+- <Resource url='https://docs.expo.dev/ui-programming/user-interface-libraries/'>Expo UI ecosystem references</Resource>
+
+## Misc / SVG Icons
+
+- <Resource url='https://ui.shadcn.com/docs'>shadcn/ui</Resource> - Radix + Tailwind components to copy/paste into your project
+- <Resource url='https://lucide.dev/'>Lucide</Resource>
+- <Resource url='https://heroicons.com/'>Heroicons</Resource>

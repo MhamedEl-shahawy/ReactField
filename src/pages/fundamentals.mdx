@@ -1,0 +1,153 @@
+export const description =
+  'Learn React fundamentals, modern React concepts, and recommended courses to build production-ready React applications.'
+
+# React Fundamentals
+
+<Summary>
+  <ul>
+    <li>Resources for learning JavaScript &amp; TypeScript</li>
+    <li>Core React concepts you absolutely need to know</li>
+    <li>What is new in modern React (server-first patterns)</li>
+    <li>Advanced understanding of render/re-render behavior in React</li>
+    <li>Modern courses (including free options) to keep leveling up</li>
+  </ul>
+</Summary>
+
+## JavaScript & TypeScript (JS/TS)
+
+**JavaScript**
+
+- <Resource url='https://eloquentjavascript.net/'>Eloquent JavaScript</Resource> - A good desk reference to keep bookmarked. Read thoroughly for a high-level understanding of the language.
+- <Resource url='https://github.com/ryanmcdermott/clean-code-javascript'>Clean Code JavaScript</Resource> - Tips on how to write clean, simple, understandable JavaScript.
+- <Resource url='https://javascript.info/'>JavaScript.info</Resource> - Modern JavaScript Tutorial
+- <Resource url='https://learnjavascript.online/'>Learn JavaScript</Resource> - Interactive JavaScript Tutorial
+- <Resource url='https://www.theodinproject.com/paths/full-stack-javascript'>The Odin Project</Resource> - Full Stack JavaScript Development Course
+- <Resource url='https://egghead.io/courses/learn-es6-ecmascript-2015'>Egghead.io</Resource> - Learning `ES6`
+- <Resource url='https://github.com/leonardomso/33-js-concepts'>33 JS concepts</Resource> - 33 Concepts Every JavaScript Developer Should Know
+- <Resource url='https://exploringjs.com/es6.html'>ExploringJS</Resource> - Book covering ECMAScript 6 (ECMAScript 2015)
+
+**TypeScript**
+
+A JavaScript (JS) developer can pick up the basics of TypeScript (TS) in about 10 minutes. But learning TS is more than just adding "types" to your variables here and there. It's about removing the possibility of a bug you'll probably run into if you wrote an application in pure JS. It's likely you already have an internal mental model of "data structures" when you're coding in JS - TypeScript just solidifies those mental models (in your head) into actual "rules" that can apply to your code and how it gets used.
+
+The class of bugs you're getting rid of are all those pesky (…cannot read… 'undefined') errors in the console. If you're ready to get started, check out some of the links below:
+
+- <Resource url='https://www.typescriptlang.org/why-create-typescript'>Why Create TypeScript?</Resource>
+- <Resource url='https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html'>TS for the New Programmer</Resource> - TypeScript explained for beginners
+- <Resource url='https://stackoverflow.com/questions/12694530/what-is-typescript-and-why-would-i-use-it-in-place-of-javascript/35048303#35048303'>stackoverflow.com - What is TypeScript and why would I use it in place of JavaScript? [closed]</Resource>
+- <Resource url='https://www.typescriptcourse.com/why-typescript'>Why TypeScript?</Resource>
+- <Resource url='https://www.totaltypescript.com/tutorials/beginners-typescript'>Beginner's TypeScript</Resource> - A (free) interactive video course by Matt Pocock
+- <Resource url='https://www.totaltypescript.com/tutorials/react-with-typescript'>React with TypeScript</Resource> - Another free video course by Matt Pocock
+- <Resource url='https://www.totaltypescript.com/books/total-typescript-essentials'>Total TypeScript Essentials</Resource>
+- <Resource url='https://www.youtube.com/playlist?list=PLNqp92_EXZBJYFrpEzdO2EapvU0GOJ09n'>No BS TS</Resource> - A (free) video course by Jack Herrington
+- <Resource url='https://www.youtube.com/watch?v=30LWjhZzg50'>Learn TypeScript - Full Tutorial</Resource>
+- <Resource url='https://typescript.tv/errors/'>TypeScript errors</Resource> - How to fix your confusing TypeScript errors
+- <Resource url='https://react-typescript-cheatsheet.netlify.app/'>React TypeScript Cheatsheet</Resource>
+
+It is not an exaggeration to call TypeScript an entire programming language. The good news is you can adopt TS complexity only as it aids you. Sometimes you might have to temporarily level up or step outside your level of expertise to complete a feature. For example, if a library gives you code to work with and it's more advanced TS than you can ordinarily write on your own, it's perfectly acceptable to use it. In most cases, adopting it incrementally in your JS projects and code is pretty painless, and it allows you to learn at your own pace without halting development altogether.
+
+## Applying JS/TS to React
+
+To give you a quick idea of the current state of React, check out this 2-minute clip by Fireship titled <Resource url='https://www.youtube.com/watch?v=Tn6-PIqc4UM'>React in 100 Seconds</Resource>. While it barely scratches the surface, it quickly communicates why React is so popular today (an important context to keep in mind).
+
+Some JS fundamentals you'll want to brush up on are **Events, Promises, Arrays**. Events drive interactivity in web applications. Understanding events at their core and how they propagate through the DOM (in the correct hierarchy and order) is critical to understanding browser behavior. To understand events, you should start by reading <Resource url='https://www.aleksandrhovhannisyan.com/blog/interactive-guide-to-javascript-events/'>An Interactive Guide to JavaScript Events</Resource> by Aleksandr Hovhannisyan.
+
+<Resource url='https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous'>Asynchronous JavaScript</Resource> allows us to write UIs and apps with non-blocking interactivity. At the same time, potentially long-running processes run in the background, which helps us defer behavior until those processes have been completed. <Resource url='https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Promises'>Promises</Resource> are the primary way of dealing with asynchronous behavior and the associated information.
+
+Arrays have developed as of `ES6` and now provide rich means of manipulating datasets. Read more about the functions of <Resource url='https://www.freecodecamp.org/news/complete-introduction-to-the-most-useful-javascript-array-methods/'>Arrays in JavaScript</Resource>.
+
+## React Concepts You MUST Know
+
+Now, moving onto the **React API**, JSX is a <Resource url='https://ui.dev/imperative-vs-declarative-programming'>declarative</Resource> way to describe our UI. React allows us to ignore the chaos of browser DOM APIs for rendering our apps (or mobile rendering in the case of react-native). You're <Resource url='https://react.dev/learn/writing-markup-with-jsx'>really</Resource> going to <Resource url='https://react.dev/learn/javascript-in-jsx-with-curly-braces'>want</Resource> to know <Resource url='https://www.codecademy.com/learn/react-101/modules/react-101-jsx-u/cheatsheet'>JSX</Resource>.
+
+Below are some specific recommended articles both in the docs and from various sources to help you "think" like a React developer. We recommend them precisely because they help you build the mental model of how React works:
+
+- <Resource url='https://react.dev/learn/thinking-in-react'>Thinking in React</Resource>
+- <Resource url='https://react.dev/learn/responding-to-events'>Responding to Events</Resource> (like clicking, typing, scrolling, etc.)
+- <Resource url='https://react.dev/learn/describing-the-ui'>Describing the UI</Resource>
+- <Resource url='https://react.dev/learn/managing-state'>Managing State</Resource> (locally, in components)
+- <Resource url='https://react.dev/reference/react'>Built-In React Hooks</Resource> (hooks reference)
+  - <Resource url='https://overreacted.io/a-complete-guide-to-useeffect/'>A Complete Guide to useEffect</Resource> - a very detailed article on the nuance of useEffect by core-team member Dan Abramov
+  - <Resource url='https://epicreact.dev/myths-about-useeffect/'>Myths about useEffect</Resource>
+- <Resource url='https://react.dev/learn/escape-hatches'>Escape Hatches</Resource>
+- <Resource url='https://www.joshwcomeau.com/react/common-beginner-mistakes/'>Common Beginner Mistakes with React</Resource>
+
+## Modern React: What's New (2026)
+
+If you learned React in the CRA + client-only era, the biggest mindset shift is this:
+**React is now commonly server-first**, with client interactivity layered in where needed.
+
+### Key ideas to understand now
+
+- **Server Components** - move non-interactive rendering and data fetching to the server to reduce client bundle size.
+- **Server Actions** - trigger server-side mutations directly from forms/components with less client API wiring.
+- **Streaming + Suspense** - render useful HTML early while slower parts continue loading.
+- **Selective client boundaries** - only use client components where browser interactivity is required.
+- **React Compiler direction** - React is evolving to automate more performance optimizations by default.
+
+### Recommended reading for modern mental models
+
+- <Resource url='https://react.dev/learn/server-and-client-components'>Server and Client Components</Resource>
+- <Resource url='https://react.dev/reference/rsc/server-components'>Server Components reference</Resource>
+- <Resource url='https://react.dev/reference/rsc/use-server'>use server</Resource>
+- <Resource url='https://react.dev/reference/react/Suspense'>Suspense</Resource>
+- <Resource url='https://nextjs.org/docs/app'>Next.js App Router</Resource> (practical server-first React architecture)
+- <Resource url='/react-rendering-strategies'>React Rendering Strategies</Resource> (our in-project guide)
+
+### Really Understanding How Rendering Works in React
+
+Many newcomers to React think a performant React app means simply cutting down the number of "re-renders" - but to really master performant React code you need to understand when/how/why re-renders happen, and what's actually happening when a re-render occurs.
+
+<Details icon='resources' label='Advanced Material on Rendering in React'>
+
+- <Resource url='https://react.dev/learn/render-and-commit'>Rendering in React</Resource>
+- <Resource url='https://ui.dev/why-react-renders'>Why React Renders</Resource>
+- <Resource url='https://www.joshwcomeau.com/react/why-react-re-renders/'>Why React Re-Renders</Resource>
+- <Resource url='https://blog.isquaredsoftware.com/2020/05/blogged-answers-a-mostly-complete-guide-to-react-rendering-behavior/'>A (mostly) complete guide to react rendering behavior</Resource>
+- Everything on <Resource url='https://www.developerway.com/posts?filter=re-renders'>developerway.com</Resource> that has to do with re-rendering
+- <Resource url='https://react.gg/visualized'>React, Visualized</Resource>
+- <Resource url='https://alexsidorenko.com/blog/react-render-always-rerenders/'>A Visual Guide to React Rendering</Resource>
+- <Resource url='https://codesandbox.io/s/a-visual-guide-to-react-rendering-sandbox-td70u?file=/src/sandbox.jsx'>Interactive CodeSandbox</Resource> that shows how/when parents re-render any direct child components used in the render (NOT to be confused with the `children` prop, which do NOT always trigger re-renders if/when they change)
+  - Notice that `Component B` in this example is <Resource url='https://react.dev/reference/react/memo'>memoized</Resource> with `memo()`
+- <Resource url='https://alexsidorenko.com/blog/react-render-children-prop/'>React recursively re-renders child components, but the `children` prop is special</Resource>
+  - assuming your component passes the children prop through and simply renders it, re-renders of `{children}` will not always cause the parent to re-render
+- <Resource url='https://julesblom.com/writing/react-hook-component-timeline'>Timeline of a React Component With Hooks</Resource>
+  - An interactive timeline showing how a React component with hooks runs
+- <Resource url='https://julesblom.com/writing/parents-owners-performance'>Parents & Owners in React: Rendering Performance</Resource>
+  - Being aware of the distinction between parent and owner components can help you isolate updates and improve rendering performance.
+
+</Details>
+
+
+
+## Courses & Video Tutorials
+
+Modern courses and tutorials to help you move from fundamentals to production-ready React.
+We prioritize resources that are actively updated for current React patterns (server components, modern routing, data-fetching, and performance).
+
+<Expand parent='Video Courses (Modern Picks)'>
+- <Resource url='https://frontendmasters.com/learn/react/'>Frontend Masters - React Learning Path</Resource> *(paid)* - one of the best structured paths from fundamentals to production architecture.
+- <Resource url='https://frontendmasters.com/courses/'>Frontend Masters Courses Catalog</Resource> *(paid)* - look for recently updated React, TypeScript, and Next.js tracks.
+- <Resource url='https://www.epicreact.dev/'>Epic React</Resource> *(paid)* - deep practical React patterns and production thinking.
+- <Resource url='https://www.totaltypescript.com/tutorials/react-with-typescript'>React with TypeScript</Resource> *(free)* - modern TS + React workflow from fundamentals upward.
+</Expand>
+
+<Expand parent='Interactive / Hands-on'>
+- <Resource url='https://scrimba.com/learn/learnreact'>Scrimba - Learn React</Resource> *(free/paid tiers)* - highly interactive and beginner-friendly.
+- <Resource url='https://react.dev/learn'>React Official Docs (Learn)</Resource> *(free)* - best source for modern React mental models.
+- <Resource url='https://www.freecodecamp.org/news/tag/react/'>freeCodeCamp React guides</Resource> *(free)* - project-driven learning and practical walkthroughs.
+</Expand>
+
+<Expand parent='Free-first Options'>
+- <Resource url='https://react.dev/learn'>React Official Docs</Resource> - always the baseline; keep this as your source of truth.
+- <Resource url='https://www.youtube.com/@jackherrington'>Jack Herrington</Resource> - modern React, Next.js, and tooling updates.
+- <Resource url='https://www.youtube.com/c/FrontendMastersGit'>Frontend Masters YouTube</Resource> - free previews and high-signal talks.
+- <Resource url='https://www.totaltypescript.com/tutorials/react-with-typescript'>Total TypeScript - React with TS</Resource> - free modern TS course for React developers.
+</Expand>
+
+<Expand parent='How to choose a course quickly'>
+- Beginner and free-first: start with <Resource url='https://react.dev/learn'>React Docs</Resource> + <Resource url='https://scrimba.com/learn/learnreact'>Scrimba</Resource>.
+- Intermediate and project-focused: take the <Resource url='https://frontendmasters.com/learn/react/'>Frontend Masters React path</Resource>.
+- TypeScript-heavy React teams: pair with <Resource url='https://www.totaltypescript.com/tutorials/react-with-typescript'>React with TypeScript</Resource>.
+- Advanced production patterns: use <Resource url='https://www.epicreact.dev/'>Epic React</Resource> and our performance/rendering topics.
+</Expand>

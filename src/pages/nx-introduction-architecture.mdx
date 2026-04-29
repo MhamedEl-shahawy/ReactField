@@ -1,0 +1,347 @@
+export const description =
+  'A practical guide to NX monorepo fundamentals, architecture decisions, and workspace structure for scalable React and full-stack teams.'
+
+# NX Introduction & Architecture
+
+_A practical guide to understanding monorepo trade-offs, why Nx matters, and how to structure apps and libraries for long-term scalability._
+
+## Section 1 - Introduction to Nx Monorepos
+
+When you manage multiple related projects, you usually choose between:
+
+- **Polyrepo**: each project has its own repository and release cycle.
+- **Monorepo**: all related projects live in one repository.
+
+Neither is universally better. The right choice depends on team size, coupling, release model, and tooling maturity.
+
+### Polyrepo vs monorepo at a glance
+
+| Aspect                | Polyrepo                            | Monorepo                       |
+| --------------------- | ----------------------------------- | ------------------------------ |
+| Code sharing          | Publish/version packages            | Direct imports, always in sync |
+| Cross-project changes | Multiple PRs, coordination overhead | Single atomic commit           |
+| Dependency updates    | Repeated across repos               | One update path                |
+| Refactoring           | Cross-repo complexity               | Centralized, IDE-friendly      |
+
+### Why plain monorepo setup can fail
+
+Putting all code in one repository without platform tooling usually creates these issues:
+
+- Slow CI because everything runs on every change.
+- Weak boundaries, so imports become tangled.
+- Inconsistent commands and tooling per project.
+- Hard onboarding as graph complexity grows.
+
+### Why Nx solves this well
+
+Nx turns code colocation into an **operational monorepo platform** with:
+
+- **Task caching**: reuses prior build/test/lint outputs.
+- **Affected analysis**: runs only what changed and downstream dependents.
+- **Module boundaries**: enforces architecture through lint rules.
+- **Dependency graph**: makes impact and coupling visible.
+
+<div className="not-prose my-6 overflow-hidden rounded-[12px] border border-[#2a2a2a] bg-[#0d1117] p-5 text-white">
+  <p className="mb-4 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-zinc-400">
+    Nx Build System Architecture
+  </p>
+  <div className="grid gap-3 md:grid-cols-4">
+    <div className="rounded-[10px] border border-zinc-700 bg-[#111827] p-3 text-center text-sm">
+      Task Cache
+    </div>
+    <div className="rounded-[10px] border border-zinc-700 bg-[#111827] p-3 text-center text-sm">
+      Dependency Graph
+    </div>
+    <div className="rounded-[10px] border border-zinc-700 bg-[#111827] p-3 text-center text-sm">
+      Affected Analysis
+    </div>
+    <div className="rounded-[10px] border border-zinc-700 bg-[#111827] p-3 text-center text-sm">
+      Module Boundaries
+    </div>
+  </div>
+  <div className="mx-auto my-3 h-5 w-px bg-zinc-700" />
+  <div className="mx-auto max-w-[420px] rounded-[10px] border border-zinc-600 bg-[#111827] p-3 text-center text-sm font-medium">
+    Nx Build System
+  </div>
+  <div className="mx-auto my-3 h-5 w-px bg-zinc-700" />
+  <div className="bg-emerald-950/30 mx-auto max-w-[540px] rounded-[12px] border border-emerald-700/60 p-4">
+    <p className="mb-2 text-xs uppercase tracking-[0.08em] text-emerald-300">
+      Nx Monorepo
+    </p>
+    <div className="grid gap-2 sm:grid-cols-3">
+      <div className="rounded border border-zinc-700 bg-[#0f172a] p-2 text-center text-sm">
+        Applications
+      </div>
+      <div className="rounded border border-zinc-700 bg-[#0f172a] p-2 text-center text-sm">
+        Shared Libraries
+      </div>
+      <div className="rounded border border-zinc-700 bg-[#0f172a] p-2 text-center text-sm">
+        Utilities
+      </div>
+    </div>
+  </div>
+</div>
+
+### Practical commands you should know
+
+```bash
+# visualize project relationships
+npx nx graph
+
+# run tasks only for changed projects
+npx nx affected --target=build
+npx nx affected --target=test
+
+# run one project's target
+npx nx run web-app:serve
+```
+
+## Section 2 - Workspace Architecture
+
+Nx recommends a clear split:
+
+- `apps/` for thin deployable entry points.
+- `libs/` for most business logic, features, UI, and shared utilities.
+
+Think of apps as composition roots. Libraries hold the actual product code.
+
+### Thin app pattern
+
+```tsx
+// apps/web-app/src/app/page.tsx
+import { HomePage } from '@org/web-modules/feature-home'
+
+export default function Page() {
+  return <HomePage />
+}
+```
+
+### Suggested workspace structure
+
+```txt
+monorepo/
+|-- apps/                         # Thin, deployable entry points
+|   |-- web-app/                  # Main web app
+|   |-- mobile-app/               # Main mobile app
+|   |-- api-server/               # Node backend API
+|   `-- admin-dashboard/          # Admin app
+|
+|-- libs/                         # Most code lives here
+|   |-- web-modules/
+|   |   `-- src/
+|   |       |-- feature-auth/
+|   |       |-- feature-dashboard/
+|   |       `-- feature-settings/
+|   |-- ui/
+|   |   `-- src/
+|   |       |-- button/
+|   |       |-- card/
+|   |       `-- modal/
+|   |-- shared/
+|   |   `-- src/
+|   |       |-- types/
+|   |       |-- utils/
+|   |       `-- constants/
+|   `-- db/
+|       `-- src/
+|           |-- prisma/
+|           `-- queries/
+|
+|-- tools/
+|-- nx.json
+|-- tsconfig.base.json
+`-- package.json
+```
+
+### Visual: polyrepo to monorepo shift
+
+<div className="not-prose my-6 rounded-[12px] border border-[#2a2a2a] bg-[#101316] p-5 text-white">
+  <div className="mb-4 rounded-[10px] border border-zinc-700 bg-zinc-800/50 p-3">
+    <p className="text-sm text-zinc-300">Polyrepo</p>
+    <div className="mt-2 grid gap-2 sm:grid-cols-4">
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        web-app repo
+      </div>
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        mobile-app repo
+      </div>
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        api-server repo
+      </div>
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        shared-utils repo
+      </div>
+    </div>
+  </div>
+  <div className="mx-auto my-3 h-5 w-px bg-zinc-700" />
+  <div className="rounded-[10px] border border-zinc-700 bg-zinc-800/40 p-3">
+    <p className="text-sm text-zinc-300">Monorepo</p>
+    <div className="mt-2 grid gap-2 sm:grid-cols-4">
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        apps/web-app
+      </div>
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        apps/mobile-app
+      </div>
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        apps/api-server
+      </div>
+      <div className="rounded border border-zinc-600 bg-[#0f1115] p-2 text-center text-xs">
+        libs/shared
+      </div>
+    </div>
+  </div>
+</div>
+
+### Library organization by scope
+
+You can structure `libs/` by ownership and reuse scope:
+
+- `libs/client/*` for client-only features.
+- `libs/admin/*` for admin concerns.
+- `libs/shared/*` for common UI, data-access, and utilities.
+
+This makes boundaries explicit and keeps teams from coupling unrelated domains.
+
+## Section 3 - Library Types and Organization
+
+In practice, Nx libraries are clearer when each one has a single concern and consistent naming.
+
+### Common library categories
+
+- **Feature libraries** (`feature-*`): route-level business logic and smart components.
+- **UI libraries** (`ui-*`): reusable presentational components and design primitives.
+- **Data-access libraries** (`data-access-*`): API clients, query logic, and state adapters.
+- **Utility libraries** (`util-*`): pure helpers, formatters, validators, and shared constants.
+
+### Recommended naming convention
+
+```txt
+libs/
+|-- web/
+|   |-- feature-auth/
+|   |-- feature-dashboard/
+|   `-- data-access-api/
+|-- shared/
+|   |-- ui-kit/
+|   |-- util-format/
+|   `-- types/
+`-- admin/
+    |-- feature-users/
+    `-- data-access-admin-api/
+```
+
+This gives you faster navigation, better ownership boundaries, and cleaner dependency rules.
+
+## Section 4 - Feature Module Pattern
+
+Feature modules keep domain logic together rather than spreading it across unrelated folders.
+
+### Example feature module structure
+
+```txt
+libs/web/feature-auth/src/
+|-- components/
+|-- hooks/
+|-- services/
+|-- models/
+|-- routes/
+`-- index.ts
+```
+
+### Why this pattern scales
+
+- New contributors can understand a feature in one place.
+- Refactoring is safer because dependencies are local and explicit.
+- Testing is easier with per-feature test targets.
+
+### Barrel export pattern
+
+```ts
+// libs/web/feature-auth/src/index.ts
+export * from './components/LoginForm'
+export * from './hooks/useAuthSession'
+export * from './services/authApi'
+```
+
+Use barrel exports to define public API and hide internals.
+
+## Section 5 - Module Boundaries and Dependencies
+
+Without boundaries, monorepos eventually become tightly coupled. Nx encourages explicit dependency constraints.
+
+### Boundary goals
+
+- Prevent low-level utilities from importing app-specific features.
+- Prevent feature libraries from importing unrelated domains.
+- Keep shared libraries dependency-light and stable.
+
+### Dependency direction (safe default)
+
+```txt
+apps/* -> feature-* -> data-access-* -> util-* / types
+```
+
+Avoid reverse imports (for example `util-*` importing `feature-*`).
+
+### Boundary checks in workflow
+
+- Add tags per project (domain, type, scope).
+- Enforce import rules in linting.
+- Review `nx graph` for accidental cycles before merge.
+
+## Section 6 - Build and Development Workflow
+
+A scalable Nx workflow focuses on fast local iteration and selective CI execution.
+
+### Typical local flow
+
+```bash
+# start one app
+npx nx run web-app:serve
+
+# test only one feature library while developing
+npx nx run web-feature-auth:test
+
+# lint only affected projects from your branch
+npx nx affected --target=lint
+```
+
+### Typical CI flow
+
+```bash
+# changed projects and dependents only
+npx nx affected --target=lint --base=origin/main --head=HEAD
+npx nx affected --target=test --base=origin/main --head=HEAD
+npx nx affected --target=build --base=origin/main --head=HEAD
+```
+
+This keeps pipelines fast as the repository grows.
+
+### Practical workflow tips
+
+- Keep targets standardized (`build`, `test`, `lint`, `typecheck`) across projects.
+- Prefer smaller libraries with clear APIs over giant shared buckets.
+- Use caching aggressively to avoid repeated work in CI and local dev.
+
+## Section 7 - Summary and What's Next
+
+Nx works best when architecture and tooling are treated as one system:
+
+- Monorepo shape defines collaboration model.
+- Library boundaries define system health over time.
+- Caching + affected commands define delivery speed.
+
+If you apply thin apps, focused libs, and strict boundaries early, scaling stays predictable.
+
+## Practical Takeaways
+
+- Monorepo success depends on tooling, not repository shape alone.
+- Keep `apps/` minimal and move logic to focused libraries.
+- Use `nx affected` to keep CI fast as the workspace grows.
+- Enforce boundaries early to prevent dependency drift.
+- Start simple, then scale library granularity with team growth.
+
+## Source
+
+- [NX Introduction](https://nx.dev/docs/getting-started/intro)

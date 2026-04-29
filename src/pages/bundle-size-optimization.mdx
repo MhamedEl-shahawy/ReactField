@@ -1,0 +1,154 @@
+export const description =
+  'A practical guide to shrinking JavaScript bundles and improving first-load performance in React apps.'
+
+# Bundle Size Optimization — Ship Less JavaScript
+
+**300KB extra JS = ~3s slower load on a mid-range mobile device on 3G.**  
+That delay is the difference between an app feeling instant versus frustrating.
+
+Bundle bloat is a compounding problem: each feature adds "just a little" JavaScript, and over months your baseline first-load cost silently climbs. Most teams do not notice until Lighthouse scores drop, conversion dips, or users on slower networks churn.
+
+<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] font-medium text-[#ff5600]">
+  Impact: faster first paint, lower JS parse/execute cost
+</div>
+
+## Rule 1 — Route-level code splitting
+
+Do not ship heavy features in the initial route bundle unless they are required at first render.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (eager import)"
+  afterTitle="Correct (lazy + Suspense)"
+  beforeCode={`import HeavyEditor from '@/components/HeavyEditor'
+
+export default function SettingsPage() {
+  return <HeavyEditor />
+}`}
+  afterCode={`import { lazy, Suspense } from 'react'
+
+const HeavyEditor = lazy(() => import('@/components/HeavyEditor'))
+
+function EditorSkeleton() {
+  return <div className="h-40 animate-pulse rounded bg-zinc-100" />
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<EditorSkeleton />}>
+      <HeavyEditor />
+    </Suspense>
+  )
+}`}
+/>
+
+**Next.js version**
+
+```tsx
+import dynamic from 'next/dynamic'
+
+const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
+  loading: () => <div className="h-40 animate-pulse rounded bg-zinc-100" />,
+})
+
+export default function DashboardPage() {
+  return <HeavyComponent />
+}
+```
+
+## Rule 2 — Avoid barrel file re-exports
+
+Barrel imports can accidentally pull large dependency graphs into bundles.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (barrel import)"
+  afterTitle="Correct (direct import)"
+  beforeCode={`import { Button, Modal, Toast } from '@/components'`}
+  afterCode={`import Button from '@/components/Button'
+import Modal from '@/components/Modal'
+import Toast from '@/components/Toast'`}
+/>
+
+Why this matters: barrel files often reduce tree-shaking effectiveness, especially when exports include side effects or complex inter-module references. Direct imports make your intent explicit and help bundlers drop unused code safely.
+
+## Rule 3 — Replace heavy libraries
+
+| Library | Size | Replace with | Saving |
+| --- | --- | --- | --- |
+| `moment` | ~67KB | `date-fns` | ~55KB |
+| `lodash` | ~71KB | `lodash-es` / native methods | ~60KB |
+| `axios` | ~28KB | native `fetch` | ~28KB |
+
+Use these swaps deliberately. The biggest wins come from high-traffic routes and shared client chunks.
+
+## Rule 4 — `ssr: false` for browser-only code
+
+Some libraries (charts, Monaco, maps) rely on `window`/`document` and should not load in SSR.
+
+```tsx
+import dynamic from 'next/dynamic'
+
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
+  ssr: false,
+  loading: () => <div className="h-64 rounded bg-zinc-100 animate-pulse" />,
+})
+
+const MapView = dynamic(() => import('@/components/MapView'), {
+  ssr: false,
+  loading: () => <div className="h-72 rounded bg-zinc-100 animate-pulse" />,
+})
+
+export default function PlaygroundPage() {
+  return (
+    <>
+      <MonacoEditor />
+      <MapView />
+    </>
+  )
+}
+```
+
+This prevents server crashes and keeps browser-only code out of server render paths.
+
+## Rule 5 — Audit your bundle
+
+Set up `@next/bundle-analyzer` and inspect your treemap regularly.
+
+### Setup (3 steps)
+
+```bash
+npm install --save-dev @next/bundle-analyzer
+```
+
+```bash
+# in next.config.mjs:
+# import bundleAnalyzer from '@next/bundle-analyzer'
+# const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' })
+# export default withBundleAnalyzer(withMDX(nextConfig))
+```
+
+```bash
+ANALYZE=true npm run build
+```
+
+### How to read the treemap
+
+- Large rectangles = largest payload contributors.
+- Shared chunks indicate code loaded on many routes.
+- Compare route-specific chunks to identify local bloat.
+
+### What to look for
+
+- Duplicate packages (same utility twice via different deps).
+- Unexpectedly large libraries in critical routes.
+- Libraries imported globally but used in one feature.
+
+## Bundle health checklist
+
+- [ ] Heavy UI features are lazy-loaded at route or feature boundaries.
+- [ ] No broad barrel imports from large folders in hot paths.
+- [ ] Date, utility, and HTTP libraries are right-sized for actual usage.
+- [ ] Browser-only packages use `dynamic(..., { ssr: false })` when needed.
+- [ ] Bundle analyzer runs before major releases.
+- [ ] Largest client chunk has an owner and a reduction target.

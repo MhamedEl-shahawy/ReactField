@@ -1,0 +1,176 @@
+export const description =
+  'Learn practical patterns to remove sequential async bottlenecks and ship faster React experiences.'
+
+# Eliminating Async Waterfalls in React
+
+Async waterfalls happen when we `await` operations one-by-one even though they could run at the same time. In most codebases, this starts innocently: a handler grows over time, another fetch is added, then another, and now each request waits for the previous one to finish even when there is no real dependency.
+
+The cost is measurable and repeated across your entire user base. A **600ms waterfall vs 200ms parallel path** is not just a one-time optimization; every user session pays this tax. Reducing waterfall patterns is one of the highest leverage performance improvements you can make without changing infrastructure.
+
+<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] font-medium text-[#ff5600]">
+  Impact: lower latency on every request path
+</div>
+
+## Rule 1 — Defer async calls past early-exit conditions
+
+When a branch can return early, evaluate that branch before starting expensive async work.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect"
+  afterTitle="Correct"
+  beforeCode={`async function handleRequest(userId: string, skipProcessing: boolean) {
+  const userData = await fetchUserData(userId) // waited for nothing
+  if (skipProcessing) return { skipped: true }
+  return processUserData(userData)
+}`}
+  afterCode={`async function handleRequest(userId: string, skipProcessing: boolean) {
+  if (skipProcessing) return { skipped: true }
+  const userData = await fetchUserData(userId)
+  return processUserData(userData)
+}`}
+/>
+
+The bug is subtle: the `await` ran even when its result was never used. Early returns are free wins for both latency and resource usage.
+
+## Rule 2 — Parallelize independent awaits
+
+If calls do not depend on each other, run them concurrently.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (Sequential)"
+  afterTitle="Correct (Parallel)"
+  beforeCode={`async function loadDashboardData() {
+  const user = await fetchUser()
+  const posts = await fetchPosts()
+  const settings = await fetchSettings()
+  return { user, posts, settings }
+}`}
+  afterCode={`async function loadDashboardData() {
+  const [user, posts, settings] = await Promise.all([
+    fetchUser(),
+    fetchPosts(),
+    fetchSettings(),
+  ])
+  return { user, posts, settings }
+}`}
+/>
+
+```tsx
+// Timing diagram:
+// Sequential: 300ms + 300ms + 300ms = 900ms
+// Parallel:   max(300ms, 300ms, 300ms) = 300ms
+```
+
+<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[#dedbd6] bg-white px-2 py-1 text-[11px] text-[#626260]">
+  Note: only parallelize calls that are truly independent.
+</div>
+
+## Rule 3 — Avoid N+1 patterns
+
+A common waterfall appears inside loops: each iteration awaits before moving to the next.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (N+1 loop)"
+  afterTitle="Correct (batch and parallelize)"
+  beforeCode={`async function hydratePosts(posts: Array<{ id: string; authorId: string }>) {
+  const enriched = []
+  for (const post of posts) {
+    const author = await fetchUserById(post.authorId)
+    enriched.push({ ...post, author })
+  }
+  return enriched
+}`}
+  afterCode={`async function hydratePosts(posts: Array<{ id: string; authorId: string }>) {
+  const uniqueAuthorIds = [...new Set(posts.map((post) => post.authorId))]
+
+  const authorEntries = await Promise.all(
+    uniqueAuthorIds.map(async (id) => [id, await fetchUserById(id)] as const)
+  )
+
+  const authorMap = new Map(authorEntries)
+  return posts.map((post) => ({
+    ...post,
+    author: authorMap.get(post.authorId),
+  }))
+}`}
+/>
+
+Real-world example: fetching author details for a list of post cards. The looped `await` becomes a latency multiplier as list size grows.
+
+## Rule 4 — Component-level waterfalls
+
+Classic React waterfall:
+- Parent fetches data
+- Parent renders child
+- Child starts its own fetch after mount
+
+This serializes work across component boundaries.
+
+<CodeComparison
+  language="tsx"
+  beforeTitle="Incorrect (Parent then Child waterfall)"
+  afterTitle="Correct (Route-level parallel fetching)"
+  beforeCode={`// Parent.tsx
+export default function Parent() {
+  const [account, setAccount] = useState<Account | null>(null)
+
+  useEffect(() => {
+    fetchAccount().then(setAccount)
+  }, [])
+
+  if (!account) return <Spinner />
+  return <Child accountId={account.id} />
+}
+
+// Child.tsx
+function Child({ accountId }: { accountId: string }) {
+  const [activity, setActivity] = useState<Activity[]>([])
+
+  useEffect(() => {
+    fetchActivity(accountId).then(setActivity)
+  }, [accountId])
+
+  return <ActivityFeed items={activity} />
+}`}
+  afterCode={`// app/dashboard/page.tsx (Next.js App Router)
+export default async function DashboardPage() {
+  const [account, notifications] = await Promise.all([
+    fetchAccount(),
+    fetchNotifications(),
+  ])
+
+  const [activity, recommendations] = await Promise.all([
+    fetchActivity(account.id),
+    fetchRecommendations(account.id),
+  ])
+
+  return (
+    <DashboardView
+      account={account}
+      notifications={notifications}
+      activity={activity}
+      recommendations={recommendations}
+    />
+  )
+}`}
+/>
+
+Route-level orchestration keeps the fetch graph explicit and prevents mount-time request chains.
+
+## Quick Reference
+
+| Pattern | Problem | Fix | Impact |
+| --- | --- | --- | --- |
+| Early async before branch | Work runs even when function exits early | Move early-exit checks before `await` | Removes wasted network/database calls |
+| Sequential independent awaits | Total latency adds up (`A + B + C`) | Use `Promise.all` for independent calls | Collapses wall-clock time to max single call |
+| N+1 await in loops | Each iteration blocks the next | Gather IDs, batch with `Promise.all`, map results | Scales better with list size |
+| Parent/child fetch chain | Child fetch starts only after parent render | Fetch in route/page/layout and pass props | Eliminates component-level waterfalls |
+
+<div className="not-prose mt-8">
+  <a href="/react-performance-optimization" className="text-[13px] font-medium text-[#ff5600] hover:underline">
+    Up next: Bundle Size Optimization →
+  </a>
+</div>

@@ -1,0 +1,152 @@
+export const description =
+  'Curated React ecosystem libraries for forms, data fetching, tooling, performance, and production-ready frontend architecture.'
+
+# Ecosystem
+
+<Details icon='contribute' label='Help us make this page better!'>
+  Hi there, so we're looking for libraries and tools that can do the following:
+  
+  - useful things for 3d rendering / graphics / video-gaming in browsers
+  - edge cases / difficult things to do in frontend apps
+  - niche libraries that just REALLY fill out their use-cases
+</Details>
+
+React boasts a vast ecosystem of open-source libraries, plugins, and features that can help your team rapidly develop UIs and applications.
+
+Generally, to make our list below, the library in question needs to have support and active development/maintenance. The rules are not strict, something like 100K+ weekly downloads on npm and a release within the last 6-12 months.
+
+---
+
+## Recommended Baseline (Most Teams)
+
+If you want a practical default stack in 2026:
+
+- Build: <Resource url='https://www.npmjs.com/package/vite'>vite</Resource>
+- Lint/format: <Resource url='https://www.npmjs.com/package/biome'>biome</Resource> or <Resource url='https://www.npmjs.com/package/oxlint'>oxlint</Resource> + <Resource url='https://www.npmjs.com/package/oxfmt'>oxfmt</Resource>
+- Data fetching/cache: <Resource url='https://www.npmjs.com/package/@tanstack/react-query'>@tanstack/react-query</Resource>
+- Forms: <Resource url='https://www.npmjs.com/package/react-hook-form'>react-hook-form</Resource> + <Resource url='https://www.npmjs.com/package/zod'>zod</Resource>
+- Tables/virtualization: <Resource url='https://www.npmjs.com/package/@tanstack/react-table'>@tanstack/react-table</Resource> + <Resource url='https://www.npmjs.com/package/@tanstack/react-virtual'>@tanstack/react-virtual</Resource>
+
+## Premade Hooks
+
+- <Resource url='https://www.npmjs.com/package/@uidotdev/usehooks'>usehooks.com</Resource>
+- <Resource url='https://www.npmjs.com/package/usehooks-ts'>usehooks-ts.com</Resource>
+
+## Utility Libraries
+
+Utility libraries typically bring an array of functions at your disposal, either all around a single domain (such as dates/timezones) or more generic (array sorting, object cloning, deep comparisons, etc.)
+
+- <Resource url='https://www.npmjs.com/package/date-fns'>date-fns</Resource>
+- <Resource url='https://www.npmjs.com/package/use-local-storage-state'>use-local-storage-state</Resource>
+- <Resource url='https://www.npmjs.com/package/@shopify/react-cookie'>react-cookie</Resource>
+- <Resource url='https://www.npmjs.com/package/lodash'>lodash</Resource>
+- <Resource url='https://www.npmjs.com/package/zod'>zod</Resource> - schema validation, parsing, and type-safe contracts between UI/forms/API responses
+- <Resource url='https://www.npmjs.com/package/valibot'>valibot</Resource> - lightweight schema validation alternative
+
+## Data Fetching and Caching
+
+- <Resource url='https://www.npmjs.com/package/@tanstack/react-query'>@tanstack/react-query</Resource> - default recommendation for server state
+- <Resource url='https://www.npmjs.com/package/swr'>swr</Resource> - simple and effective cache-first data fetching
+- <Resource url='https://www.npmjs.com/package/@reduxjs/toolkit'>RTK Query</Resource> - strong option for Redux-heavy codebases
+
+## Build Tooling, Linting, and Formatting
+
+If your team wants a modern, high-performance toolchain, these are worth evaluating together:
+
+- <Resource url='https://www.npmjs.com/package/vite'>vite</Resource> - fast dev server and build tool for React projects
+- <Resource url='https://www.npmjs.com/package/rolldown'>rolldown</Resource> - Rust-powered bundler option in the modern Vite ecosystem direction
+- <Resource url='https://www.npmjs.com/package/biome'>biome</Resource> - all-in-one formatter + linter (and more) with strong performance
+- <Resource url='https://www.npmjs.com/package/oxlint'>oxlint</Resource> - very fast linting focused on large codebases
+- <Resource url='https://www.npmjs.com/package/oxfmt'>oxfmt</Resource> - fast formatting companion from the same ecosystem
+
+### Suggested adoption path
+
+1. Start with <Resource url='https://www.npmjs.com/package/vite'>vite</Resource> for project scaffolding and dev/build performance.
+2. Use <Resource url='https://www.npmjs.com/package/zod'>zod</Resource> for runtime-safe schemas in forms and API boundaries.
+3. Choose one formatting/linting stack:
+   - unified approach: <Resource url='https://www.npmjs.com/package/biome'>biome</Resource>
+   - split approach: <Resource url='https://www.npmjs.com/package/oxlint'>oxlint</Resource> + <Resource url='https://www.npmjs.com/package/oxfmt'>oxfmt</Resource>
+4. Evaluate <Resource url='https://www.npmjs.com/package/rolldown'>rolldown</Resource> as your bundling strategy matures.
+
+## Forms & Inputs
+
+The form libraries below can help you build complex forms, and the input components can bring non-standard browser input types (such as datepickers, multi-select dropdowns, etc.) into your application.
+
+- <Resource url='https://www.npmjs.com/package/react-hook-form'>react-hook-form</Resource>
+- <Resource url='https://www.npmjs.com/package/formik'>formik</Resource> - still used in legacy teams, but less common in new projects
+- We recommend <Resource url='https://www.npmjs.com/package/zod'>zod</Resource> (or <Resource url='https://www.npmjs.com/package/yup'>yup</Resource>) for validation schemas
+
+### Form UI & Inputs
+
+For basic form elements like dropdowns, radio groups, checkboxes, we recommend headless UI libraries (read about them on our <Resource url='/styling'>UI / Styling</Resource> page).
+
+Input masking
+
+- <Resource url='https://www.npmjs.com/package/react-number-format'>react-number-format</Resource>
+- <Resource url='https://www.npmjs.com/package/react-imask'>react-imask</Resource>
+
+Select / Multi-Select
+
+- <Resource url='https://www.npmjs.com/package/react-select'>react-select</Resource>
+- <Resource url='https://www.npmjs.com/package/rc-tree-select'>rc-tree-select</Resource>
+
+Datepickers
+
+- <Resource url='https://www.npmjs.com/package/react-datepicker'>react-datepicker</Resource>
+- <Resource url='https://www.npmjs.com/package/react-calendar'>react-calendar</Resource>
+- <Resource url='https://www.npmjs.com/package/react-day-picker'>react-day-picker</Resource>
+
+## Animations / Loading States
+
+- <Resource url='https://www.npmjs.com/package/framer-motion'>framer/motion</Resource>
+- <Resource url='https://www.npmjs.com/package/react-spring'>react-spring</Resource>
+- <Resource url='https://www.npmjs.com/package/react-loading-skeleton'>react-loading-skeleton</Resource>
+
+## Drag & Drop / Resizing Elements
+
+- <Resource url='https://www.npmjs.com/package/@dnd-kit/core'>dnd-kit</Resource> - recommended modern drag-and-drop toolkit
+- <Resource url='https://www.npmjs.com/package/react-dnd'>react-dnd</Resource> - Drag and Drop for React
+- <Resource url='https://www.npmjs.com/package/react-draggable'>react-draggable</Resource> - React draggable component
+- <Resource url='https://www.npmjs.com/package/react-resizable'>react-resizable</Resource> - A simple React component that is resizable with a handle
+- <Resource url='https://www.npmjs.com/package/react-grid-layout'>react-grid-layout</Resource> - A draggable and resizable grid layout with responsive breakpoints
+- <Resource url='https://www.npmjs.com/package/react-advanced-cropper'>react-advanced-cropper</Resource> - An advanced React component for image cropping
+- <Resource url='https://www.npmjs.com/package/react-archer'>react-archer</Resource> - Draw arrows between React elements
+
+## Charts & Data Visualization
+
+- <Resource url='https://www.npmjs.com/org/visx'>visx</Resource> - Visualization components
+- <Resource url='https://npmjs.com/package/victory'>victory</Resource> - A collection of composable React components for building interactive data visualizations
+- <Resource url='https://www.npmjs.com/package/recharts'>recharts</Resource> - Redefined chart library built with React and D3
+- <Resource url='https://www.npmjs.com/org/nivo'>nivo</Resource> - Provides a rich set of data visualization components, built on top of the D3 and React libraries
+
+## Tables / Data-Grids / Spreadsheets
+
+- <Resource url='https://www.npmjs.com/package/@tanstack/react-table'>react-table</Resource> - A lightweight, fast and extendable datagrid for React
+- <Resource url='https://www.npmjs.com/package/react-data-grid'>react-data-grid</Resource> - Excel-like grid component built with React
+
+## Toasts / Notifications
+
+- <Resource url='https://github.com/emilkowalski/sonner'>sonner</Resource>
+
+## Spotlight / File Viewers / Carousels
+
+- <Resource url='https://www.npmjs.com/package/react-joyride'>react-joyride</Resource> - Create guided tours for your apps
+- <Resource url='https://www.npmjs.com/package/@react-pdf-viewer/core'>react-pdf-viewer</Resource> - A PDF viewer made for React
+- <Resource url='https://npmjs.org/package/swiper'>swiper</Resource> - modern mobile touch slider
+
+## Virtualization
+
+- <Resource url='https://www.npmjs.com/package/react-window'>react-window</Resource>
+- <Resource url='https://www.npmjs.com/package/@tanstack/react-virtual'>@tanstack/react-virtual</Resource>
+- <Resource url='https://www.npmjs.com/package/react-virtuoso'>react-virtuoso</Resource>
+
+## Routing
+
+- <Resource url='https://www.npmjs.com/package/react-router-dom'>react-router</Resource>
+- <Resource url='https://www.npmjs.com/package/@tanstack/router'>tanstack-router</Resource>
+- <Resource url='https://www.npmjs.com/package/wouter'>wouter</Resource>
+
+## Internationalization (I18N)
+
+- <Resource url='https://www.npmjs.com/package/react-i18next'>react-i18next</Resource>
+- <Resource url='https://www.npmjs.com/package/react-intl'>react-intl</Resource>
