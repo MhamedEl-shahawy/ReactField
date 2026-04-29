@@ -13,7 +13,13 @@ import 'focus-visible'
 const DEFAULT_TITLE = 'ReactField'
 const DEFAULT_DESCRIPTION =
   'ReactField is a production React handbook with best practices, architecture guides, performance patterns, and ecosystem recommendations for modern React teams.'
-const DEFAULT_OG_IMAGE = '/framework-tweet.png'
+const DEFAULT_OG_IMAGE = '/og.png'
+const DEFAULT_OG_IMAGE_ALT =
+  'ReactField — production React handbook with best practices and architecture guidance'
+const OG_IMAGE_WIDTH = 1200
+const OG_IMAGE_HEIGHT = 630
+/** Public site URL for absolute canonical/OG URLs when env is unset (e.g. static host). */
+const PRODUCTION_SITE_ORIGIN = 'https://reactfield.dev'
 
 function getSiteOrigin() {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL
@@ -24,6 +30,10 @@ function getSiteOrigin() {
   const vercel = process.env.VERCEL_URL
   if (vercel) {
     return `https://${vercel.replace(/\/$/, '')}`
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return PRODUCTION_SITE_ORIGIN
   }
 
   return ''
@@ -54,6 +64,7 @@ export default function App({ Component, pageProps }) {
   const canonicalPath = router.asPath?.split('#')[0]?.split('?')[0] || router.pathname || '/'
   const canonicalUrl = toAbsoluteUrl(origin, canonicalPath)
   const ogImage = toAbsoluteUrl(origin, pageProps.ogImage || DEFAULT_OG_IMAGE)
+  const ogImageAlt = pageProps.ogImageAlt || DEFAULT_OG_IMAGE_ALT
 
   return (
     <>
@@ -66,10 +77,19 @@ export default function App({ Component, pageProps }) {
         <meta property="og:description" content={description} />
         {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
         {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+        {ogImage ? (
+          <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+        ) : null}
+        {ogImage ? (
+          <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
+        ) : null}
+        {ogImage ? <meta property="og:image:alt" content={ogImageAlt} /> : null}
+        {ogImage ? <meta property="og:image:type" content="image/png" /> : null}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
+        {ogImage ? <meta name="twitter:image:alt" content={ogImageAlt} /> : null}
         {canonicalUrl ? <link rel="canonical" href={canonicalUrl} /> : null}
         <link
           rel="icon"
