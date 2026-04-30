@@ -13,7 +13,6 @@ import 'focus-visible'
 const DEFAULT_TITLE = 'ReactField'
 const DEFAULT_DESCRIPTION =
   'ReactField is a production React handbook with best practices, architecture guides, performance patterns, and ecosystem recommendations for modern React teams.'
-const DEFAULT_OG_IMAGE = '/og.png'
 const DEFAULT_OG_IMAGE_ALT =
   'ReactField — production React handbook with best practices and architecture guidance'
 const OG_IMAGE_WIDTH = 1200
@@ -46,6 +45,14 @@ function toAbsoluteUrl(origin, path) {
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
+function createDefaultOgImagePath(title, description) {
+  const params = new URLSearchParams({
+    title: title || DEFAULT_TITLE,
+    description: description || DEFAULT_DESCRIPTION,
+  })
+  return `/api/og?${params.toString()}`
+}
+
 function onRouteChange() {
   useMobileNavigationStore.getState().close()
 }
@@ -63,7 +70,8 @@ export default function App({ Component, pageProps }) {
   const description = pageProps.description || DEFAULT_DESCRIPTION
   const canonicalPath = router.asPath?.split('#')[0]?.split('?')[0] || router.pathname || '/'
   const canonicalUrl = toAbsoluteUrl(origin, canonicalPath)
-  const ogImage = toAbsoluteUrl(origin, pageProps.ogImage || DEFAULT_OG_IMAGE)
+  const ogImagePath = pageProps.ogImage || createDefaultOgImagePath(title, description)
+  const ogImage = toAbsoluteUrl(origin, ogImagePath)
   const ogImageAlt = pageProps.ogImageAlt || DEFAULT_OG_IMAGE_ALT
 
   return (
