@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.reactfield.dev/</loc></url>
+  <url><loc>https://www.reactfield.dev/about</loc></url>
+  <url><loc>https://www.reactfield.dev/fundamentals</loc></url>
+  <url><loc>https://www.reactfield.dev/topics</loc></url>
+  <url><loc>https://www.reactfield.dev/project-standards</loc></url>
+  <url><loc>https://www.reactfield.dev/semantics</loc></url>
+  <url><loc>https://www.reactfield.dev/styling</loc></url>
+  <url><loc>https://www.reactfield.dev/ecosystem</loc></url>
+  <url><loc>https://www.reactfield.dev/books</loc></url>
+  <url><loc>https://www.reactfield.dev/hooks</loc></url>
+  <url><loc>https://www.reactfield.dev/state-management</loc></url>
+  <url><loc>https://www.reactfield.dev/react-rendering-strategies</loc></url>
+  <url><loc>https://www.reactfield.dev/react-performance-optimization</loc></url>
+  <url><loc>https://www.reactfield.dev/stop-unnecessary-rerenders</loc></url>
+  <url><loc>https://www.reactfield.dev/eliminating-async-waterfalls</loc></url>
+  <url><loc>https://www.reactfield.dev/bundle-size-optimization</loc></url>
+  <url><loc>https://www.reactfield.dev/javascript-performance-patterns-react</loc></url>
+  <url><loc>https://www.reactfield.dev/nx-introduction-architecture</loc></url>
+  <url><loc>https://www.reactfield.dev/automated-testing</loc></url>
+  <url><loc>https://www.reactfield.dev/frameworks</loc></url>
+  <url><loc>https://www.reactfield.dev/frameworks/react-native</loc></url>
+  <url><loc>https://www.reactfield.dev/frameworks/nextjs</loc></url>
+  <url><loc>https://www.reactfield.dev/frameworks/alternate-tech-stacks</loc></url>
+  <url><loc>https://www.reactfield.dev/team/mohamed-elshahawy</loc></url>
+</urlset>

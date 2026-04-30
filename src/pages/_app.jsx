@@ -71,6 +71,8 @@ export default function App({ Component, pageProps }) {
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="googlebot" content="index, follow, max-image-preview:large" />
         <meta property="og:site_name" content={DEFAULT_TITLE} />
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
