@@ -47,18 +47,18 @@ function toAbsoluteUrl(origin, path) {
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
+/** Static file — LinkedIn, X, and Slack reliably fetch CDN assets; dynamic `/api/og` often fails their crawlers. */
 const STATIC_OG_IMAGE_PATH = '/og.png'
-/** Max URL length for og:image — very long URLs get truncated in HTML and break Twitter/Discord fetches. */
+/** Max URL length for og:image — very long URLs get truncated in HTML and break embeds. */
 const MAX_OG_IMAGE_URL_LENGTH = 2000
 
 /**
- * Only `title` in the query string (never full page description).
- * Use the short page heading, not the full `<title>` ("Page - ReactField").
+ * Optional per-page dynamic card via `/api/og?title=...` — set `pageProps.ogImage`.
+ * Default stays static for LinkedIn/X compatibility.
  */
-function createDefaultOgImagePath(pageHeading) {
+function createDynamicOgImagePath(pageHeading) {
   const shortTitle = (pageHeading || DEFAULT_TITLE).slice(0, 56)
-  const params = new URLSearchParams({ title: shortTitle })
-  return `/api/og?${params.toString()}`
+  return `/api/og?${new URLSearchParams({ title: shortTitle }).toString()}`
 }
 
 function onRouteChange() {
@@ -79,7 +79,9 @@ export default function App({ Component, pageProps }) {
   const canonicalPath = router.asPath?.split('#')[0]?.split('?')[0] || router.pathname || '/'
   const canonicalUrl = toAbsoluteUrl(origin, canonicalPath)
   const ogHeading = isHome ? DEFAULT_TITLE : pageTitle
-  const rawOgPath = pageProps.ogImage || createDefaultOgImagePath(ogHeading)
+  const useDynamicOg = process.env.NEXT_PUBLIC_DYNAMIC_OG === 'true'
+  const rawOgPath =
+    pageProps.ogImage || (useDynamicOg ? createDynamicOgImagePath(ogHeading) : STATIC_OG_IMAGE_PATH)
   let ogImage = toAbsoluteUrl(origin, rawOgPath)
   if (ogImage && ogImage.length > MAX_OG_IMAGE_URL_LENGTH) {
     ogImage = toAbsoluteUrl(origin, STATIC_OG_IMAGE_PATH)
