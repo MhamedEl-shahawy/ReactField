@@ -7,7 +7,6 @@ export const config = {
 const WIDTH = 1200
 const HEIGHT = 630
 const MAX_TITLE_LENGTH = 90
-const MAX_DESCRIPTION_LENGTH = 140
 
 function clampText(value, maxLength) {
   if (!value) return ''
@@ -19,11 +18,6 @@ function clampText(value, maxLength) {
 export default function handler(request) {
   const { searchParams } = new URL(request.url)
   const title = clampText(searchParams.get('title') || 'ReactField', MAX_TITLE_LENGTH)
-  const description = clampText(
-    searchParams.get('description') ||
-      'Production React handbook with practical best practices, architecture guidance, and performance patterns.',
-    MAX_DESCRIPTION_LENGTH
-  )
 
   return new ImageResponse(
     (
@@ -62,11 +56,10 @@ export default function handler(request) {
           <div style={{ fontSize: '34px', fontWeight: 600, lineHeight: 1.2 }}>ReactField</div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: 1 }}>
           <div style={{ fontSize: '66px', fontWeight: 700, lineHeight: 1.06, letterSpacing: '-0.02em' }}>
             {title}
           </div>
-          <div style={{ fontSize: '30px', color: '#d4d4d8', lineHeight: 1.35 }}>{description}</div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

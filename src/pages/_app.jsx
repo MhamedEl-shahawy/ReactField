@@ -21,15 +21,17 @@ const OG_IMAGE_HEIGHT = 630
 const PRODUCTION_SITE_ORIGIN = 'https://www.reactfield.dev'
 
 function getSiteOrigin() {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL
-  if (explicit) {
-    return explicit.replace(/\/$/, '')
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
+  if (explicit) return explicit
+
+  // On Vercel production, VERCEL_URL is *.vercel.app. Using that for og:image/canonical
+  // while users share the custom domain breaks many embed crawlers (Discord, OG preview tools).
+  if (process.env.VERCEL_ENV === 'production') {
+    return PRODUCTION_SITE_ORIGIN
   }
 
-  const vercel = process.env.VERCEL_URL
-  if (vercel) {
-    return `https://${vercel.replace(/\/$/, '')}`
-  }
+  const vercel = process.env.VERCEL_URL?.replace(/\/$/, '')
+  if (vercel) return `https://${vercel}`
 
   if (process.env.NODE_ENV === 'production') {
     return PRODUCTION_SITE_ORIGIN
@@ -45,14 +47,17 @@ function toAbsoluteUrl(origin, path) {
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
-/** Short params keep `/api/og` URLs under crawler limits (Discord, Slack, etc.). */
-function createDefaultOgImagePath(title, description) {
-  const shortTitle = (title || DEFAULT_TITLE).slice(0, 72)
-  const shortDesc = (description || DEFAULT_DESCRIPTION).slice(0, 110)
-  const params = new URLSearchParams({
-    title: shortTitle,
-    description: shortDesc,
-  })
+const STATIC_OG_IMAGE_PATH = '/og.png'
+/** Max URL length for og:image — very long URLs get truncated in HTML and break Twitter/Discord fetches. */
+const MAX_OG_IMAGE_URL_LENGTH = 2000
+
+/**
+ * Only `title` in the query string (never full page description).
+ * Use the short page heading, not the full `<title>` ("Page - ReactField").
+ */
+function createDefaultOgImagePath(pageHeading) {
+  const shortTitle = (pageHeading || DEFAULT_TITLE).slice(0, 56)
+  const params = new URLSearchParams({ title: shortTitle })
   return `/api/og?${params.toString()}`
 }
 
@@ -73,8 +78,12 @@ export default function App({ Component, pageProps }) {
   const description = pageProps.description || DEFAULT_DESCRIPTION
   const canonicalPath = router.asPath?.split('#')[0]?.split('?')[0] || router.pathname || '/'
   const canonicalUrl = toAbsoluteUrl(origin, canonicalPath)
-  const ogImagePath = pageProps.ogImage || createDefaultOgImagePath(title, description)
-  const ogImage = toAbsoluteUrl(origin, ogImagePath)
+  const ogHeading = isHome ? DEFAULT_TITLE : pageTitle
+  const rawOgPath = pageProps.ogImage || createDefaultOgImagePath(ogHeading)
+  let ogImage = toAbsoluteUrl(origin, rawOgPath)
+  if (ogImage && ogImage.length > MAX_OG_IMAGE_URL_LENGTH) {
+    ogImage = toAbsoluteUrl(origin, STATIC_OG_IMAGE_PATH)
+  }
   const ogImageAlt = pageProps.ogImageAlt || DEFAULT_OG_IMAGE_ALT
 
   return (
@@ -90,6 +99,7 @@ export default function App({ Component, pageProps }) {
         <meta property="og:description" content={description} />
         {canonicalUrl ? <meta property="og:url" content={canonicalUrl} /> : null}
         {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+        {ogImage ? <meta property="og:image:secure_url" content={ogImage} /> : null}
         {ogImage ? (
           <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
         ) : null}
@@ -99,6 +109,8 @@ export default function App({ Component, pageProps }) {
         {ogImage ? <meta property="og:image:alt" content={ogImageAlt} /> : null}
         {ogImage ? <meta property="og:image:type" content="image/png" /> : null}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:domain" content="www.reactfield.dev" />
+        {canonicalUrl ? <meta name="twitter:url" content={canonicalUrl} /> : null}
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
