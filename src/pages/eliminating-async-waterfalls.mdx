@@ -7,9 +7,9 @@ Async waterfalls happen when we `await` operations one-by-one even though they c
 
 The cost is measurable and repeated across your entire user base. A **600ms waterfall vs 200ms parallel path** is not just a one-time optimization; every user session pays this tax. Reducing waterfall patterns is one of the highest leverage performance improvements you can make without changing infrastructure.
 
-<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] font-medium text-[#ff5600]">
+<ImpactBadge>
   Impact: lower latency on every request path
-</div>
+</ImpactBadge>
 
 ## Rule 1 — Defer async calls past early-exit conditions
 
@@ -63,9 +63,9 @@ If calls do not depend on each other, run them concurrently.
 // Parallel:   max(300ms, 300ms, 300ms) = 300ms
 ```
 
-<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[#dedbd6] bg-white px-2 py-1 text-[11px] text-[#626260]">
+<MutedCallout>
   Note: only parallelize calls that are truly independent.
-</div>
+</MutedCallout>
 
 ## Rule 3 — Avoid N+1 patterns
 
@@ -169,8 +169,6 @@ Route-level orchestration keeps the fetch graph explicit and prevents mount-time
 | N+1 await in loops | Each iteration blocks the next | Gather IDs, batch with `Promise.all`, map results | Scales better with list size |
 | Parent/child fetch chain | Child fetch starts only after parent render | Fetch in route/page/layout and pass props | Eliminates component-level waterfalls |
 
-<div className="not-prose mt-8">
-  <a href="/react-performance-optimization" className="text-[13px] font-medium text-[#ff5600] hover:underline">
-    Up next: Bundle Size Optimization →
-  </a>
-</div>
+<NextPageLink href="/react-performance-optimization">
+  Up next: Bundle Size Optimization →
+</NextPageLink>

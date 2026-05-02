@@ -1,4 +1,6 @@
 import Link from 'next/link'
+
+import { RfSquareMark } from '@/components/Logo'
 import clsx from 'clsx'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -163,13 +165,8 @@ export default function SidebarNavigation({ currentPath, anchors = [], onSearchO
     <aside className="flex h-full flex-col bg-white text-[#111111]">
       <div className="border-b border-[#dedbd6] px-4 pb-4 pt-5">
         <div className="mb-4 flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded bg-[#111111]">
-            <span aria-hidden="true" className="text-sm font-semibold text-white">
-              ⚛
-            </span>
-          </div>
+          <RfSquareMark className="h-7 w-7" aria-hidden />
           <span className="text-[15px] font-medium tracking-[-0.02em]">ReactField</span>
-          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#ff5600]" aria-hidden="true" />
         </div>
 
         <button

@@ -34,6 +34,12 @@ function normalizePath(path: string) {
   return path
 }
 
+/** Same route identity for scroll reset: strips hash (and query) so in-page #anchors do not jump to top. */
+function routeScrollKey(asPath: string) {
+  const withoutHash = asPath.split('#')[0] ?? ''
+  return withoutHash.split('?')[0] ?? ''
+}
+
 function getSectionContent(heading: Element) {
   const chunks = [heading.textContent ?? '']
   let sibling = heading.nextElementSibling
@@ -169,6 +175,7 @@ export function Layout({
   const router = useRouter()
   const pathname = currentPath || router.pathname
   const contentRef = useRef<HTMLElement>(null)
+  const routeScrollKeyRef = useRef(routeScrollKey(router.asPath))
   const articleRef = useRef<HTMLElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchIndexRef = useRef<FlexSearchDocument<SearchDoc> | null>(null)
@@ -454,9 +461,22 @@ export function Layout({
 
   useEffect(() => {
     const closeMobileNav = () => setMobileNavOpen(false)
-    router.events.on('routeChangeComplete', closeMobileNav)
+
+    const onRouteChangeComplete = (url: string) => {
+      closeMobileNav()
+
+      const nextKey = routeScrollKey(url)
+      if (routeScrollKeyRef.current !== nextKey) {
+        const main = contentRef.current
+        if (main) main.scrollTop = 0
+        window.scrollTo(0, 0)
+      }
+      routeScrollKeyRef.current = nextKey
+    }
+
+    router.events.on('routeChangeComplete', onRouteChangeComplete)
     return () => {
-      router.events.off('routeChangeComplete', closeMobileNav)
+      router.events.off('routeChangeComplete', onRouteChangeComplete)
     }
   }, [router])
 
@@ -578,10 +598,10 @@ export function Layout({
                       Active
                     </span>
                   </div>
-                  <article ref={articleRef} className="min-w-0 overflow-x-auto">
+                  <article ref={articleRef} className="min-w-0 overflow-x-visible">
                     <Prose
                       as="div"
-                      className="mt-5 max-w-[72ch] prose-zinc leading-[1.8] prose-headings:font-normal prose-headings:tracking-[-0.02em]"
+                      className="mt-5 w-full max-w-none prose-zinc leading-[1.8] prose-headings:font-normal prose-headings:tracking-[-0.02em]"
                     >
                       {children}
                     </Prose>

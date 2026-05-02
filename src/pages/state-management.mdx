@@ -166,19 +166,19 @@ Outlined here are the various categories data your application might need to man
 
 If you&apos;re interested in a more detailed definition of each state category below, you might take the time to read <Resource url='https://jamesknelson.com/5-types-react-application-state/'>The 5 Types of React Application State</Resource>. Think of these categories as out of your control; this is simply the nature of the web and how the industry has decided to categorize information.
 
-<Expand parent={<>1. UI state <span className='text-[.75rem]'>(other names: "Control State")</span> </>}>
+<Expand parent={<>1. UI state <span style={{ fontSize: '0.75rem' }}>(other names: "Control State")</span> </>}>
 Local state is just what it sounds like: state that doesn&apos;t leave your container. "Container" is a pretty generic word, in React-world it is a synonym for "component". Some examples of what is meant by "local state" are form values, toggle states (true/false) representing expanded sidebars, opened accordions, active tabs, etc. One way to think about local state is you can typically discard it until the "container" renders again, initiating the state with a default value. Most of the time, you should use native React hooks (`useState`, `useReducer`, `useContext`) to manage this type of state.
 </Expand>
-<Expand parent={<>2. Communication state <span className='text-[.75rem]'>(other names: "Fetch State", "Async State")</span></>}>
+<Expand parent={<>2. Communication state <span style={{ fontSize: '0.75rem' }}>(other names: "Fetch State", "Async State")</span></>}>
 Communication state is less about storing data and more about storing the _status_ of processes. In modern apps, we deal with asynchronous functionality constantly (HTTP requests, background tasks running on server, etc.) We need to keep our app responsive while things are happening in the background. Storing when processes are loading, complete, or have encountered an error is the "communication" state we want. Managing this properly allows us to show loading animations, optimistic UIs, feedback, errors, etc., all leading to a better user experience. It will be up to you to decide how much of your "communication state" needs to live globally in a store vs. locally in containers like pages or components. In many applications this is easily solved with "Smart" data-fetching.
 </Expand>
-<Expand parent={<>3. Application state <span className='text-[.75rem]'>(other names: "Business Data", "App Data", "Server State")</span></>}>
+<Expand parent={<>3. Application state <span style={{ fontSize: '0.75rem' }}>(other names: "Business Data", "App Data", "Server State")</span></>}>
 Data state is the easiest to define of all these types. It&apos;s any data that powers your application! It's all the data the users need to use the application; it usually comes from external applications (like servers, databases, REST APIs, etc.). This data type can overlap with number 4 below (session state) in small ways. An example might be a user&apos;s profile data. That info could probably be considered both "business" data and "session" data - where exactly to draw that line can be blurry, but don&apos;t worry about that for now.
 </Expand>
-<Expand parent={<>4. Session state <span className='text-[.75rem]'>(other names: "Authentication State")</span></>}>
+<Expand parent={<>4. Session state <span style={{ fontSize: '0.75rem' }}>(other names: "Authentication State")</span></>}>
 Session state is all about managing information about the user currently using your application. It should be noted that even though this is sometimes referred to as "Auth State" - sessions can also exist for unauthenticated users of apps/websites (like an unauthenticated user adding things to their shopping cart on an e-commerce website).
 </Expand>
-<Expand parent={<>5. Location state <span className='text-[.75rem]'>(other names: "URL", "Browser History State", "Navigation State")</span></>}>
+<Expand parent={<>5. Location state <span style={{ fontSize: '0.75rem' }}>(other names: "URL", "Browser History State", "Navigation State")</span></>}>
 Unless you are building a router or doing some very complex work with browser location APIs - managing the location state of your app will typically be handled natively by the browser or a library like react-router. Commonly, the behavior of your application will rely on the URL (like using an id in a URL such as /invoice?id=1234). However, it is very uncommon for you to need to manage the location state yourself. Typically you would let the browser&apos;s native functionality or a solution like react-router manage this state for you. We don&apos;t focus on managing that type of state in this guide.
 </Expand>
 ## Local or Global: Developers Choice

@@ -8,9 +8,9 @@ That delay is the difference between an app feeling instant versus frustrating.
 
 Bundle bloat is a compounding problem: each feature adds "just a little" JavaScript, and over months your baseline first-load cost silently climbs. Most teams do not notice until Lighthouse scores drop, conversion dips, or users on slower networks churn.
 
-<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] font-medium text-[#ff5600]">
+<ImpactBadge>
   Impact: faster first paint, lower JS parse/execute cost
-</div>
+</ImpactBadge>
 
 ## Rule 1 — Route-level code splitting
 
@@ -30,7 +30,12 @@ export default function SettingsPage() {
 const HeavyEditor = lazy(() => import('@/components/HeavyEditor'))
 
 function EditorSkeleton() {
-  return <div className="h-40 animate-pulse rounded bg-zinc-100" />
+  return (
+    <div
+      style={{ height: '10rem', borderRadius: 8, background: '#f4f4f5' }}
+      aria-hidden
+    />
+  )
 }
 
 export default function SettingsPage() {
@@ -48,7 +53,12 @@ export default function SettingsPage() {
 import dynamic from 'next/dynamic'
 
 const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
-  loading: () => <div className="h-40 animate-pulse rounded bg-zinc-100" />,
+  loading: () => (
+    <div
+      style={{ height: '10rem', borderRadius: 8, background: '#f4f4f5' }}
+      aria-hidden
+    />
+  ),
 })
 
 export default function DashboardPage() {
@@ -91,12 +101,22 @@ import dynamic from 'next/dynamic'
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
-  loading: () => <div className="h-64 rounded bg-zinc-100 animate-pulse" />,
+  loading: () => (
+    <div
+      style={{ height: '16rem', borderRadius: 8, background: '#f4f4f5' }}
+      aria-hidden
+    />
+  ),
 })
 
 const MapView = dynamic(() => import('@/components/MapView'), {
   ssr: false,
-  loading: () => <div className="h-72 rounded bg-zinc-100 animate-pulse" />,
+  loading: () => (
+    <div
+      style={{ height: '18rem', borderRadius: 8, background: '#f4f4f5' }}
+      aria-hidden
+    />
+  ),
 })
 
 export default function PlaygroundPage() {

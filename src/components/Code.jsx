@@ -89,7 +89,7 @@ function CopyButton({ code }) {
       <span
         aria-hidden={copied}
         className={clsx(
-          'pointer-events-none flex items-center gap-0.5 text-zinc-400 transition duration-300',
+          'pointer-events-none flex items-center gap-0.5 text-zinc-300 transition duration-300',
           copied && '-translate-y-1.5 opacity-0'
         )}
       >
@@ -148,14 +148,14 @@ function CodePanel({ tag, label, code, children }) {
       />
       <div className="relative">
         <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-          <span className="rounded-[3px] border border-white/10 bg-black/30 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-zinc-300">
+          <span className="rounded-[3px] border border-white/15 bg-black/30 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-zinc-200">
             {language}
           </span>
           <CopyButton code={rawCode} />
         </div>
         <pre
           className={clsx(
-            'code-block overflow-x-auto p-4 pr-28 text-xs text-white',
+            'code-block overflow-x-auto bg-zinc-950 p-4 pr-28 text-xs text-zinc-100',
             showLineNumbers && 'code-block--line-numbers',
             canCollapse && !expanded && 'code-block--collapsed'
           )}
@@ -163,7 +163,7 @@ function CodePanel({ tag, label, code, children }) {
           {children}
         </pre>
         {canCollapse ? (
-          <div className="border-t border-white/10 bg-zinc-900/95 px-4 py-2 dark:border-white/5">
+          <div className="border-t border-white/10 bg-zinc-950/95 px-4 py-2 dark:border-white/5">
             <button
               type="button"
               onClick={() => setExpanded((value) => !value)}
@@ -310,7 +310,7 @@ export function CodeGroup({ children, title, ...props }) {
     <CodeGroupContext.Provider value={true}>
       <Container
         {...containerProps}
-        className="not-prose my-6 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10"
+        className="not-prose my-6 overflow-hidden rounded-2xl bg-zinc-950 shadow-md dark:ring-1 dark:ring-white/10"
       >
         <CodeGroupHeader title={title} {...headerProps}>
           {children}
@@ -321,36 +321,42 @@ export function CodeGroup({ children, title, ...props }) {
   )
 }
 
-function DiffSide({ title, language, code, variant }) {
+function DiffSide({ title, language, code, variant, showLineNumbers }) {
   let lines = getCodeLines(code)
-  let showLineNumbers = lines.length > 8
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
-      <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50 px-3 py-2">
-        <span className="text-xs font-medium text-zinc-700">{title}</span>
-        <span className="rounded-[3px] border border-zinc-300 bg-white px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-zinc-500">
+    <div className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+      <div className="flex min-w-0 items-center justify-between gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900">
+        <span
+          className="min-w-0 truncate text-xs font-medium text-zinc-700 dark:text-zinc-200"
+          title={title}
+        >
+          {title}
+        </span>
+        <span className="shrink-0 rounded-[3px] border border-zinc-300 bg-white px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.06em] text-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
           {getLanguageLabel(language)}
         </span>
       </div>
-      <div
-        className={clsx(
-          'code-diff p-3 font-mono text-[12px] leading-6 text-zinc-800',
-          showLineNumbers && 'code-diff--line-numbers'
-        )}
-      >
-        {lines.map((line, index) => (
-          <div
-            key={`${title}-${index}`}
-            className={clsx(
-              'code-diff-line whitespace-pre',
-              variant === 'before' && 'code-diff-line--before',
-              variant === 'after' && 'code-diff-line--after'
-            )}
-          >
-            {line}
-          </div>
-        ))}
+      <div className="code-diff-scroll touch-pan-x">
+        <div
+          className={clsx(
+            'code-diff min-w-max p-3 font-mono text-[12px] leading-6 text-zinc-800 dark:text-zinc-100',
+            showLineNumbers && 'code-diff--line-numbers'
+          )}
+        >
+          {lines.map((line, index) => (
+            <div
+              key={`${title}-${index}`}
+              className={clsx(
+                'code-diff-line whitespace-pre',
+                variant === 'before' && 'code-diff-line--before',
+                variant === 'after' && 'code-diff-line--after'
+              )}
+            >
+              {line}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -364,15 +370,31 @@ export function CodeComparison({
   language = 'tsx',
   wide = false,
 }) {
+  let beforeLineCount = getCodeLines(beforeCode).length
+  let afterLineCount = getCodeLines(afterCode).length
+  let showLineNumbers = Math.max(beforeLineCount, afterLineCount) > 0
+
   return (
     <div
       className={clsx(
-        'not-prose my-6 grid grid-cols-1 gap-3 lg:grid-cols-2',
-        wide && 'xl:-mx-14 2xl:-mx-20'
+        'not-prose my-6 grid min-w-0 grid-cols-1 gap-3',
+        wide ? 'lg:grid-cols-2' : 'xl:grid-cols-2'
       )}
     >
-      <DiffSide title={beforeTitle} language={language} code={beforeCode} variant="before" />
-      <DiffSide title={afterTitle} language={language} code={afterCode} variant="after" />
+      <DiffSide
+        title={beforeTitle}
+        language={language}
+        code={beforeCode}
+        variant="before"
+        showLineNumbers={showLineNumbers}
+      />
+      <DiffSide
+        title={afterTitle}
+        language={language}
+        code={afterCode}
+        variant="after"
+        showLineNumbers={showLineNumbers}
+      />
     </div>
   )
 }

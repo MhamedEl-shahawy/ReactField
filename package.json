@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --config .eslintrc.json"
+    "lint": "eslint . --config .eslintrc.json",
+    "generate-favicons": "node scripts/generate-favicons.mjs"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@types/node": "25.6.0",
     "eslint": "^9.39.4",
+    "sharp": "^0.34.5",
     "eslint-config-next": "^15.5.15",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0"

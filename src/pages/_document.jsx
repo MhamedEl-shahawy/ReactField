@@ -1,38 +1,8 @@
 import { Head, Html, Main, NextScript } from 'next/document'
 
+/** Light theme only: keep Tailwind `dark:` variants inactive. */
 const modeScript = `
-  let darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-  updateMode()
-  darkModeMediaQuery.addEventListener('change', updateModeWithoutTransitions)
-  window.addEventListener('storage', updateModeWithoutTransitions)
-
-  function updateMode() {
-    let isSystemDarkMode = darkModeMediaQuery.matches
-    let isDarkMode = window.localStorage.isDarkMode === 'true' || (!('isDarkMode' in window.localStorage) && isSystemDarkMode)
-
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-
-    if (isDarkMode === isSystemDarkMode) {
-      delete window.localStorage.isDarkMode
-    }
-  }
-
-  function disableTransitionsTemporarily() {
-    document.documentElement.classList.add('[&_*]:!transition-none')
-    window.setTimeout(() => {
-      document.documentElement.classList.remove('[&_*]:!transition-none')
-    }, 0)
-  }
-
-  function updateModeWithoutTransitions() {
-    disableTransitionsTemporarily()
-    updateMode()
-  }
+  document.documentElement.classList.remove('dark')
 `
 
 export default function Document() {
@@ -41,7 +11,7 @@ export default function Document() {
       <Head>
         <script dangerouslySetInnerHTML={{ __html: modeScript }} />
       </Head>
-      <body className="antialiased bg-[color:var(--brand-neutral-warm)] dark:bg-[color:var(--brand-house)]">
+      <body className="antialiased bg-[color:var(--brand-neutral-warm)]">
         <Main />
         <NextScript />
       </body>

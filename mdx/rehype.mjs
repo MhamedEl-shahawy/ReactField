@@ -24,7 +24,11 @@ let highlighter
 function rehypeShiki() {
   return async (tree) => {
     highlighter =
-      highlighter ?? (await createHighlighter({ themes: ['github-light'], langs: ['js', 'jsx', 'ts', 'tsx', 'css', 'html', 'json', 'bash'] }))
+      highlighter ??
+      (await createHighlighter({
+        themes: ['github-dark'],
+        langs: ['js', 'jsx', 'ts', 'tsx', 'css', 'html', 'json', 'bash'],
+      }))
 
     visit(tree, 'element', (node) => {
       if (node.tagName === 'pre' && node.children[0]?.tagName === 'code') {
@@ -39,7 +43,7 @@ function rehypeShiki() {
             : 'txt'
           const html = highlighter.codeToHtml(textNode.value, {
             lang,
-            theme: 'github-light',
+            theme: 'github-dark',
           })
           textNode.value = html
             .replace(/^<pre[^>]*><code[^>]*>/, '')
@@ -57,6 +61,19 @@ function rehypeSlugify() {
       if (node.tagName === 'h2' && !node.properties.id) {
         node.properties.id = slugify(toString(node))
       }
+    })
+  }
+}
+
+/** First `# …` in MDX becomes `title` (via rehype-mdx-title) and is shown as the hero H1 in Layout — strip it from body to avoid duplicate headings. */
+function rehypeStripDuplicateLayoutTitle() {
+  return (tree) => {
+    let removed = false
+    visit(tree, 'element', (node, index, parent) => {
+      if (removed || node.tagName !== 'h1') return
+      removed = true
+      parent.children.splice(index, 1)
+      return index
     })
   }
 }
@@ -115,6 +132,7 @@ export const rehypePlugins = [
   rehypeShiki,
   rehypeSlugify,
   rehypeMdxTitle,
+  rehypeStripDuplicateLayoutTitle,
   [
     rehypeAddMDXExports,
     (tree) => ({

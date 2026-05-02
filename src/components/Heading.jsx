@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
+import clsx from 'clsx'
 import { useInView } from 'framer-motion'
 
 import { useSectionStore } from '@/components/SectionProvider'
@@ -63,6 +64,7 @@ export function Heading({
   tag,
   label,
   anchor = true,
+  className,
   ...props
 }) {
   let Component = `h${level}`
@@ -91,7 +93,11 @@ export function Heading({
       <Component
         ref={ref}
         id={anchor ? id : undefined}
-        className={tag || label ? 'mt-2 scroll-mt-32' : 'scroll-mt-24'}
+        className={clsx(
+          tag || label ? 'mt-2 scroll-mt-32' : 'scroll-mt-24',
+          'text-[#111111] dark:text-[#111111]',
+          className
+        )}
         {...props}
       >
         {anchor ? (

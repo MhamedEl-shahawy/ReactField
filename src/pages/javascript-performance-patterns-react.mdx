@@ -175,7 +175,7 @@ function Profile({ id }: { id: string }) {
 />
 
 Fix guide:
-- Inline style props -> hoist constant objects to module scope when static
+- Inline style props -> hoist constant objects to module scope when static (same idea for **CSS Modules** or vanilla `className` strings: avoid allocating **new** style objects or template strings every render when the value is static)
 - Hook config objects -> memoize values/functions used as options
 - `new Date()` / `new RegExp()` in render -> precompute or memoize intentionally
 

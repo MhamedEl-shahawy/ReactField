@@ -16,6 +16,7 @@ export * from '@/components/Summary';
 export * from '@/components/StepList';
 export * from '@/components/Tab';
 export * from '@/components/Tweet';
+export { ImpactBadge, MutedCallout, NextPageLink } from '@/components/DocCallouts';
 
 export const h2 = function H2(props) {
   return <Heading level={2} {...props} />
@@ -43,11 +44,25 @@ function InfoIcon(props) {
 
 export function Note({ children }) {
   return (
-    <div className="my-6 flex gap-2.5 rounded-2xl border border-sky-500/20 bg-sky-50/50 p-4 text-sm leading-6 text-sky-900 dark:border-sky-500/30 dark:bg-sky-500/5 dark:text-sky-200 dark:[--tw-prose-links:theme(colors.white)] dark:[--tw-prose-links-hover:theme(colors.sky.300)]">
-      <InfoIcon className="flex-none w-4 h-4 mt-1 fill-sky-500 stroke-white dark:fill-sky-200/20 dark:stroke-sky-200" />
-      <div className="[&>:first-child]:mt-0 [&>:last-child]:mb-0">
-        {children}
-      </div>
+    <div
+      className="not-prose my-6"
+      style={{
+        display: 'flex',
+        gap: '0.625rem',
+        borderRadius: '1rem',
+        border: '1px solid rgba(14, 165, 233, 0.25)',
+        background: 'rgba(240, 249, 255, 0.95)',
+        padding: '1rem',
+        fontSize: 14,
+        lineHeight: 1.625,
+        color: '#0c4a6e',
+      }}
+    >
+      <InfoIcon
+        aria-hidden
+        style={{ flex: 'none', width: 16, height: 16, marginTop: 4, fill: '#0ea5e9', stroke: '#fff' }}
+      />
+      <div style={{ flex: 1 }}>{children}</div>
     </div>
   )
 }

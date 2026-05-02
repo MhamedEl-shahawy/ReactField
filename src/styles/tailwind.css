@@ -94,12 +94,19 @@
     left: 0.25rem;
     width: 1.75rem;
     text-align: right;
-    color: #71717a;
+    color: #a1a1aa;
   }
 
   .code-block--collapsed {
     max-height: 24rem;
     overflow: hidden;
+  }
+
+  .code-diff-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .code-diff--line-numbers {
@@ -121,12 +128,24 @@
     color: #71717a;
   }
 
+  .dark .code-diff--line-numbers .code-diff-line::before {
+    color: #a1a1aa;
+  }
+
   .code-diff-line--before {
     background: rgba(239, 68, 68, 0.1);
   }
 
   .code-diff-line--after {
     background: rgba(34, 197, 94, 0.1);
+  }
+
+  .dark .code-diff-line--before {
+    background: rgba(239, 68, 68, 0.18);
+  }
+
+  .dark .code-diff-line--after {
+    background: rgba(34, 197, 94, 0.15);
   }
 
   .rf-timeline-node {

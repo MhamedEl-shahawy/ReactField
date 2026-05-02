@@ -7,9 +7,9 @@ React re-renders a component when **state**, **props**, or **context** changes. 
 
 Most re-renders are totally fine. The re-renders that hurt are the ones that repeatedly run expensive work, or force large subtrees to repaint when nothing meaningful changed for that part of the UI.
 
-<div className="not-prose my-4 inline-flex items-center rounded-[3px] border border-[rgba(255,86,0,0.2)] bg-[#fff8f5] px-2 py-1 text-[11px] font-medium text-[#ff5600]">
+<ImpactBadge>
   Impact: smoother interactions and lower CPU usage in complex UIs
-</div>
+</ImpactBadge>
 
 ## Rule 1 — Lazy state initialization
 

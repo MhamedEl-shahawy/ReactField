@@ -10,7 +10,6 @@ import {
   useIsInsideMobileNavigation,
 } from '@/components/MobileNavigation'
 import { useMobileNavigationStore } from '@/components/MobileNavigation'
-import { ModeToggle } from '@/components/ModeToggle'
 import { MobileSearch, Search } from '@/components/Search'
 
 function TopLevelNavItem({ href, children }) {
@@ -60,15 +59,15 @@ export const Header = forwardRef(function Header({ className }, ref) {
         )}
       />
       <div className="hidden lg:flex">
-        <Link href="/" aria-label="ReactField">
-          <Logo className="h-6" />
+        <Link href="/" className="inline-flex items-center" aria-label="ReactField">
+          <Logo />
         </Link>
       </div>
       <Search />
       <div className="flex items-center gap-5 lg:hidden">
         <MobileNavigation />
-        <Link href="/" aria-label="ReactField">
-          <Logo className="h-6" />
+        <Link href="/" className="inline-flex items-center" aria-label="ReactField">
+          <Logo />
         </Link>
       </div>
       <div className="flex items-center gap-5">
@@ -83,7 +82,6 @@ export const Header = forwardRef(function Header({ className }, ref) {
         <div className="hidden md:block md:h-5 md:w-px md:bg-zinc-900/10 md:dark:bg-white/15" />
         <div className="flex gap-4">
           <MobileSearch />
-          <ModeToggle />
         </div>
       </div>
     </motion.div>
