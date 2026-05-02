@@ -47,14 +47,17 @@ export default function handler(request) {
               width: '44px',
               height: '44px',
               borderRadius: '12px',
+              backgroundColor: '#111111',
               border: '2px solid #ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '18px',
+              fontWeight: 700,
+              letterSpacing: '-0.04em',
             }}
           >
-            ⚛
+            RF
           </div>
           <div style={{ fontSize: '34px', fontWeight: 600, lineHeight: 1.2 }}>ReactField</div>
         </div>
@@ -75,6 +78,9 @@ export default function handler(request) {
     {
       width: WIDTH,
       height: HEIGHT,
+      headers: {
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+      },
     }
   )
 }

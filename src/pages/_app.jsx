@@ -18,7 +18,7 @@ const DEFAULT_OG_IMAGE_ALT =
 const OG_IMAGE_WIDTH = 1200
 const OG_IMAGE_HEIGHT = 630
 /** Public site URL for absolute canonical/OG URLs when env is unset (e.g. static host). */
-const PRODUCTION_SITE_ORIGIN = 'https://reactfield.dev'
+const PRODUCTION_SITE_ORIGIN = 'https://www.reactfield.dev'
 
 function getSiteOrigin() {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL
@@ -45,10 +45,13 @@ function toAbsoluteUrl(origin, path) {
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
+/** Short params keep `/api/og` URLs under crawler limits (Discord, Slack, etc.). */
 function createDefaultOgImagePath(title, description) {
+  const shortTitle = (title || DEFAULT_TITLE).slice(0, 72)
+  const shortDesc = (description || DEFAULT_DESCRIPTION).slice(0, 110)
   const params = new URLSearchParams({
-    title: title || DEFAULT_TITLE,
-    description: description || DEFAULT_DESCRIPTION,
+    title: shortTitle,
+    description: shortDesc,
   })
   return `/api/og?${params.toString()}`
 }
