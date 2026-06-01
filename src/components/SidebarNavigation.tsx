@@ -43,6 +43,7 @@ export const sidebarNavigation: SidebarNavGroup[] = [
       { title: 'Books & Reading', href: '/books' },
       { title: 'Proficiency with Hooks', href: '/hooks' },
       { title: 'State Management Fundamentals', href: '/state-management' },
+      { title: 'State Management Anti-Patterns', href: '/react-state-management-anti-patterns' },
       { title: 'Data Fetching & Caching', href: '/data-fetching-caching' },
       { title: 'AI with React Best Practices', href: '/ai-with-react-best-practices' },
       { title: 'React Rendering Strategies', href: '/react-rendering-strategies' },

@@ -1,0 +1,322 @@
+export const description =
+  'Avoid the derived state anti-pattern in React: when to compute values during render, when to use useMemo, and when to store state.'
+
+export const sections = [
+  { title: 'What is Derived State', id: 'what-is-derived-state' },
+  { title: 'Common Anti-Patterns', id: 'common-anti-patterns' },
+  { title: 'When Storing is Acceptable', id: 'when-storing-derived-state-is-acceptable' },
+  { title: 'The key Reset Trick', id: 'the-key-prop-reset-trick' },
+  { title: 'Decision Framework', id: 'decision-framework' },
+]
+
+# React State Management Anti-Patterns
+
+<Summary>
+  <ul>
+    <li>What "derived state" is and why it creates bugs</li>
+    <li>The 3 most common anti-patterns and how to fix them</li>
+    <li>When storing derived state is actually the right call</li>
+    <li>The key-prop reset trick for syncing state to props</li>
+    <li>A quick decision framework for what belongs in state</li>
+  </ul>
+</Summary>
+
+State is the data your UI needs to *remember* over time. The hardest part of state management isn't usually *how* to store data — it's deciding *what* deserves to be state in the first place.
+
+**Derived state** is the most common mistake here: storing a value in state even though it can be calculated from existing state or props. The moment you do this, you create two sources of truth that can drift out of sync — and that gap is where bugs live.
+
+## What is Derived State
+
+Derived state means you store a value in **state** even though it could be calculated from props or other state.
+
+The classic shape looks like this: you have `firstName` and `lastName` in state, and then you *also* keep `fullName` in state and try to keep it updated. Now `fullName` can disagree with the two values it's supposedly built from.
+
+React borrows this idea from database design and functional programming: **never store data that can be computed.** In a SQL database you'd store a user's `birth_date`, but never their `age` — age changes every day, and storing it means your database is wrong the moment the clock ticks past midnight.
+
+Treat component data the same way. Store the absolute minimum raw data, and calculate everything else.
+
+## Common Anti-Patterns
+
+### 1. Syncing props or state into state with useEffect
+
+This is the most common derived-state mistake. The pattern looks reasonable: "when these inputs change, recalculate this value and store it."
+
+**The wrong way:**
+
+```jsx
+function Profile() {
+  const [firstName, setFirstName] = React.useState("Mohamed");
+  const [lastName, setLastName] = React.useState("Elshahawy");
+  const [fullName, setFullName] = React.useState("Mohamed Elshahawy");
+
+  // two sources of truth, kept in sync manually
+  React.useEffect(() => {
+    setFullName(firstName + " " + lastName);
+  }, [firstName, lastName]);
+
+  return (
+    <>
+      <input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+      <input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+      <p>Full name: {fullName}</p>
+    </>
+  );
+}
+```
+
+Why this is worse than it looks:
+
+- **It renders twice per change.** The component renders once with the stale `fullName`, the effect fires, `setFullName` triggers a second render. The user can briefly see the old value.
+- **It's fragile.** Forget a dependency, or add a third input later without updating the effect, and `fullName` silently goes stale.
+
+**The correct way — compute during render:**
+
+```jsx
+function Profile() {
+  const [firstName, setFirstName] = React.useState("Mohamed");
+  const [lastName, setLastName] = React.useState("Elshahawy");
+
+  // derived during render — can never be wrong
+  const fullName = firstName + " " + lastName;
+
+  return (
+    <>
+      <input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+      <input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+      <p>Full name: {fullName}</p>
+    </>
+  );
+}
+```
+
+A good rule: **if a `useEffect` exists only to call `setState` based on other state or props, it shouldn't exist.**
+
+### 2. Storing a filtered or sorted list in state
+
+<CodeComparison
+  language="jsx"
+  beforeTitle="Anti-pattern (filtered list in state)"
+  afterTitle="Correct (derive during render)"
+  beforeCode={`function Products({ products }) {
+  const [query, setQuery] = React.useState("");
+  const [filtered, setFiltered] = React.useState(products);
+
+  React.useEffect(() => {
+    setFiltered(
+      products.filter((p) =>
+        p.name.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+  }, [products, query]);
+
+  return (
+    <ul>
+      {filtered.map((p) => (
+        <li key={p.id}>{p.name}</li>
+      ))}
+    </ul>
+  );
+}`}
+  afterCode={`function Products({ products }) {
+  const [query, setQuery] = React.useState("");
+
+  // derived during render
+  const visible = products.filter((p) =>
+    p.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <ul>
+      {visible.map((p) => (
+        <li key={p.id}>{p.name}</li>
+      ))}
+    </ul>
+  );
+}`}
+/>
+
+`visible` is just `products` + `query`. Derive it during render and the bug surface disappears. If you stored it in state instead, you'd need to update it whenever `products`, `query`, *or* any other filter changes — three update paths, three chances to forget one.
+
+### 3. Derived validation state in forms
+
+Validation results are derived from field values — they don't need their own state.
+
+<CodeComparison
+  language="jsx"
+  beforeTitle="Anti-pattern (validation in state)"
+  afterTitle="Correct (derive during render)"
+  beforeCode={`function SignupForm() {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [isValid, setIsValid] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsValid(email.includes("@") && password.length >= 8);
+  }, [email, password]);
+
+  return (
+    <>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button disabled={!isValid}>Sign up</button>
+    </>
+  );
+}`}
+  afterCode={`function SignupForm() {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  // all derived during render
+  const emailError =
+    email.length > 0 && !email.includes("@") ? "Invalid email" : null;
+  const passwordError =
+    password.length > 0 && password.length < 8 ? "Too short" : null;
+  const isValid = email.includes("@") && password.length >= 8;
+
+  return (
+    <>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} />
+      {emailError && <span>{emailError}</span>}
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {passwordError && <span>{passwordError}</span>}
+      <button disabled={!isValid}>Sign up</button>
+    </>
+  );
+}`}
+/>
+
+Storing `isValid` or error strings in state would mean re-validating in an effect on every keystroke — more code, slower, and easy to desync.
+
+## When Storing Derived State is Acceptable
+
+The rule isn't "never store derived values." It's "don't store them *by default*." There are three legitimate exceptions.
+
+### 1. Cache an expensive computation — use useMemo, not useState
+
+<CodeComparison
+  language="jsx"
+  beforeTitle="Anti-pattern (useState + useEffect)"
+  afterTitle="Correct (useMemo)"
+  beforeCode={`function Chart({ points }) {
+  const [processed, setProcessed] = React.useState([]);
+
+  React.useEffect(() => {
+    setProcessed(points.map((p) => ({ ...p, y: Math.log(p.y + 1) })));
+  }, [points]);
+
+  return <Plot data={processed} />;
+}`}
+  afterCode={`function Chart({ points }) {
+  const processed = React.useMemo(() => {
+    return points.map((p) => ({ ...p, y: Math.log(p.y + 1) }));
+  }, [points]);
+
+  return <Plot data={processed} />;
+}`}
+/>
+
+`useMemo` stores a *cache* that's automatically invalidated when `points` changes. `useState` + `useEffect` stores a *copy* that can go stale. One is an optimization; the other is an anti-pattern.
+
+Memoize only if computing costs more than ~1ms **and profiling confirms it**.
+
+### 2. Freeze an initial prop into editable state — intentional
+
+Sometimes you want the *initial* value from a prop, and then let the user edit it independently. The drift is the point.
+
+```jsx
+function DraftTitleEditor({ initialTitle }) {
+  // intentionally initialized from props only once
+  const [title, setTitle] = React.useState(() => initialTitle);
+
+  return <input value={title} onChange={(e) => setTitle(e.target.value)} />;
+}
+```
+
+The naming convention (`initialX`) signals to other developers that later changes to the prop are deliberately ignored.
+
+### 3. State that genuinely cannot be derived synchronously
+
+Some values can't be computed during render — they come from outside the component: a network response, `localStorage`, a measured DOM dimension, the current time. These belong in state because there's no input to derive them from at render time.
+
+```jsx
+function UserProfile({ userId }) {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch("/api/users/" + userId)
+      .then((r) => r.json())
+      .then(setUser);
+  }, [userId]);
+
+  if (!user) return <Spinner />;
+  return <h1>{user.name}</h1>;
+}
+```
+
+This is *not* derived state — `user` can't be calculated from `userId` alone, it requires an async fetch. This is exactly what state and effects are for.
+
+## The key Prop Reset Trick
+
+A common reason people reach for "sync prop into state with useEffect" is wanting local state to **reset** when a prop changes — for example, an editor that should clear its draft when you switch to a different item.
+
+The clean solution is the `key` prop. When React sees a different `key`, it unmounts the old component and mounts a fresh one. All internal state resets automatically, no effect required.
+
+<CodeComparison
+  language="jsx"
+  beforeTitle="Anti-pattern (useEffect sync)"
+  afterTitle="Correct (key reset)"
+  beforeCode={`function ItemEditor({ itemId }) {
+  const [notes, setNotes] = React.useState("");
+
+  // trying to reset when itemId changes
+  React.useEffect(() => {
+    setNotes("");
+  }, [itemId]);
+
+  return (
+    <textarea
+      value={notes}
+      onChange={(e) => setNotes(e.target.value)}
+    />
+  );
+}`}
+  afterCode={`function ItemPage({ itemId }) {
+  // changing itemId remounts ItemEditor, resetting its state
+  return <ItemEditor key={itemId} itemId={itemId} />;
+}
+
+function ItemEditor({ itemId }) {
+  const [notes, setNotes] = React.useState("");
+
+  return (
+    <textarea
+      value={notes}
+      onChange={(e) => setNotes(e.target.value)}
+    />
+  );
+}`}
+/>
+
+A different `key` means "this is a different component instance" to React — it throws away the old one and starts clean. You get a reset-on-change with zero synchronization logic.
+
+## Decision Framework
+
+Before reaching for `useState`, ask: **where does this value come from?**
+
+| Source | What to do |
+|---|---|
+| Computed from other state or props | Derive it during render |
+| Derived but expensive (measured) | `useMemo` |
+| Seeded from a prop once, then user-owned | `useState(() => initialProp)` |
+| Should reset when a prop changes | Reset with `key` prop |
+| Comes from outside (network, storage, DOM, time) | Store it in state |
+
+If you can calculate it, don't store it.
