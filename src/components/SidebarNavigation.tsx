@@ -197,10 +197,11 @@ export default function SidebarNavigation({ currentPath, anchors = [], onSearchO
                 const isSoon =
                   link.title === 'React Native' ||
                   link.title === 'Alternate React Stacks' ||
-                  link.title === 'State Management Fundamentals' ||
                   link.title === 'Data Fetching & Caching' ||
                   link.title === 'AI with React Best Practices' ||
                   link.title === 'Remix'
+
+                const isNew = link.title === 'State Management Anti-Patterns'
 
                 return (
                   <li key={link.href}>
@@ -234,6 +235,10 @@ export default function SidebarNavigation({ currentPath, anchors = [], onSearchO
                       {isSoon ? (
                         <span className="ml-auto rounded-[3px] border border-[#dedbd6] bg-[#faf9f6] px-1.5 py-0.5 text-[10px] text-[#7b7b78]">
                           Soon
+                        </span>
+                      ) : isNew ? (
+                        <span className="ml-auto rounded-[3px] border border-[rgba(255,86,0,0.3)] bg-[#fff8f5] px-1.5 py-0.5 text-[10px] font-medium text-[#ff5600]">
+                          New
                         </span>
                       ) : null}
                     </Link>
