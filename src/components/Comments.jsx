@@ -5,13 +5,28 @@ const repo = process.env.NEXT_PUBLIC_GISCUS_REPO
 const repoId = process.env.NEXT_PUBLIC_GISCUS_REPO_ID
 const category = process.env.NEXT_PUBLIC_GISCUS_CATEGORY
 const categoryId = process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID
+/** GitHub Discussion number for the home page (e.g. "Welcome to ReactField Discussions! #8" → 8). */
+const homeDiscussionNumber = process.env.NEXT_PUBLIC_GISCUS_HOME_DISCUSSION_NUMBER
 
 function isGiscusConfigured() {
   return Boolean(repo && repoId && category && categoryId)
 }
 
+function isHomePath(pathname) {
+  return pathname === '/' || pathname === '/index'
+}
+
+function giscusMappingForPath(pathname) {
+  if (isHomePath(pathname) && homeDiscussionNumber) {
+    return { mapping: 'number', term: homeDiscussionNumber }
+  }
+  return { mapping: 'pathname' }
+}
+
 export function Comments() {
   const router = useRouter()
+  const pathname = routeScrollKey(router.asPath)
+  const { mapping, term } = giscusMappingForPath(pathname)
 
   if (!isGiscusConfigured()) {
     return null
@@ -26,12 +41,13 @@ export function Comments() {
         Discussion
       </h3>
       <Giscus
-        key={routeScrollKey(router.asPath)}
+        key={`${pathname}:${mapping}:${term ?? ''}`}
         repo={repo}
         repoId={repoId}
         category={category}
         categoryId={categoryId}
-        mapping="pathname"
+        mapping={mapping}
+        term={term}
         strict="0"
         reactionsEnabled="1"
         emitMetadata="0"
