@@ -1,4 +1,5 @@
 import { type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
@@ -6,6 +7,11 @@ import { Document as FlexSearchDocument } from 'flexsearch'
 import SidebarNavigation, { sidebarNavigation, type SidebarAnchor } from '@/components/SidebarNavigation'
 import { Prose } from '@/components/Prose'
 import { SectionProvider } from '@/components/SectionProvider'
+
+const Comments = dynamic(
+  () => import('@/components/Comments').then((mod) => mod.Comments),
+  { ssr: false }
+)
 
 type LayoutProps = {
   currentPath?: string
@@ -607,6 +613,8 @@ export function Layout({
                     </Prose>
                   </article>
                 </section>
+
+                <Comments />
 
               </div>
               {showRightToc ? (

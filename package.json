@@ -13,6 +13,7 @@
   "dependencies": {
     "@algolia/autocomplete-core": "^1.19.8",
     "@algolia/autocomplete-preset-algolia": "^1.19.8",
+    "@giscus/react": "^3.1.0",
     "@headlessui/react": "^2.2.10",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
@@ -50,9 +51,9 @@
   "devDependencies": {
     "@types/node": "25.6.0",
     "eslint": "^9.39.4",
-    "sharp": "^0.34.5",
     "eslint-config-next": "^15.5.15",
     "prettier": "^3.8.3",
-    "prettier-plugin-tailwindcss": "^0.8.0"
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "sharp": "^0.34.5"
   }
 }
